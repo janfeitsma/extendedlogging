@@ -65,10 +65,11 @@ WARNING:f:almost done
         self._compare_stdout(expected_stdout)
         self._compare_logfile_linecount(5)
 
-    def _test_trace_class_decorator(self):
-        '''Apply tracing decorator to a little class.'''
+    def test_trace_class_decorator(self):
+        '''The magical beauty of the tracing decorator is that it can be applied to a class.'''
         # setup
-        self._setupLogger()
+        self._configure(tracing=True, format_file='%(levelname)s:%(funcName)s: %(message)s')
+        # run
         @extendedlogging.traced
         class myclass():
             def __init__(self, *args, **kwargs):
@@ -81,14 +82,14 @@ WARNING:f:almost done
         c = myclass('some_argument')
         c.g()
         # verify
-        expected_log_content = """TRACE: __init__: CALL *('some_argument',) **{}
-TRACE: f: CALL *() **{}
-TRACE: f: RETURN None
-TRACE: __init__: RETURN None
-TRACE: g: CALL *() **{}
-TRACE: g: RETURN 3
+        expected_content = """TRACE:__init__: CALL *('some_argument',) **{}
+TRACE:f: CALL *() **{}
+TRACE:f: RETURN None
+TRACE:__init__: RETURN None
+TRACE:g: CALL *() **{}
+TRACE:g: RETURN 3
 """
-        self.assertEqual(self._readLogFile(), expected_log_content)
+        self._compare_logfile(expected_content)
 
     def _test_newline_folding(self):
         '''Newlines should be folded into a single line.'''
