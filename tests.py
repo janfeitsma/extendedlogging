@@ -41,8 +41,8 @@ WARNING:test_logging_info_default:almost done
         # verify
         t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}' # timestamp with millisecond resolution
         empty = '{}'
-        expected_content = f"""{t}:TRACE:tests.py,\d+:tests.f:CALL \*\(\) \*\*{empty}
-{t}:TRACE:tests.py,\d+:tests.f:RETURN None
+        expected_content = f"""{t}:TRACE:tests.py,\d+:root.f:CALL \*\(\) \*\*{empty}
+{t}:TRACE:tests.py,\d+:root.f:RETURN None
 """
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")

@@ -13,12 +13,17 @@ import autologging
 from logging import *
 from autologging import *
 
+# monkey patch to freeze the name, which enables consistent logging across multiple modules and over multiple reconfiguration runs
+autologging._generate_logger_name = lambda *args, **kwargs: MAIN_LOGGER_NAME
+
 # constants
 ARRAY_SIZE_LIMIT = None # TODO? not implemented.
 STRING_SIZE_LIMIT = None
 DEFAULT_LOG_FILE = '/tmp/extendedlogging.txt'
 BASIC_FORMAT = "%(levelname)s:%(name)s:%(message)s"
+MAIN_LOGGER_NAME = ''
 #EXTENDED_FORMATTER = ExtendedFormatter
+
 
 
 def configure(**kwargs):
@@ -36,7 +41,7 @@ def remove_all_handlers():
 
 class Configuration():
     def __init__(self, **kwargs):
-        self.name = ''
+        self.name = MAIN_LOGGER_NAME
         self.console = True # stdout
         self.tracing = False
         self.reset = True
@@ -91,6 +96,7 @@ class Configuration():
             result['handlers']['tracehandler'] = {'class': 'logging.FileHandler', 'level': self.level_file, 'formatter': 'traceformatter', 'filename': self.filename}
             result['loggers'][self.name]['handlers'].append('tracehandler')
         return result
+
 
 
 
