@@ -1,7 +1,7 @@
 import sys
 import os
 import shutil
-import contextlib
+import re
 import unittest
 
 # get system under test
@@ -29,8 +29,8 @@ WARNING:test_logging_info_default:almost done
         self._compare_stdout(expected_content)
         self.assertFalse(os.path.isfile(LOG_FILE))
 
-    def test_trace_function_decorator(self):
-        '''Apply tracing decorator to a little function. It shall only appear in logfile, not console.'''
+    def test_trace_function_decorator_timestamp(self):
+        '''Apply tracing decorator to a little function. It shall only appear in logfile, not console, default with timestamps.'''
         # setup
         self._configure(tracing=True)
         # run
@@ -39,9 +39,9 @@ WARNING:test_logging_info_default:almost done
             pass
         f()
         # verify
-        t = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}' # millisecond resolution
-        empty = ''
-        expected_content = f"""{t}:TRACE:tests.py,\d+:tests.f:CALL *() **{empty}
+        t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}' # timestamp with millisecond resolution
+        empty = '{}'
+        expected_content = f"""{t}:TRACE:tests.py,\d+:tests.f:CALL \*\(\) \*\*{empty}
 {t}:TRACE:tests.py,\d+:tests.f:RETURN None
 """
         self._compare_logfile(expected_content, regex=True)
@@ -157,7 +157,8 @@ TRACE: g: RETURN 3
 
     def _compare(self, filename, expected, regex=False):
         actual = open(filename, 'r').read()
-        self.assertEqual(actual, expected)
+        compare_function = [self.assertEqual, self.assertMultiLineRegexMatch][regex]
+        compare_function(expected, actual)
 
     def _compare_stdout(self, expected):
         actual = sys.stdout.getvalue()
@@ -168,10 +169,32 @@ TRACE: g: RETURN 3
         extendedlogging.remove_all_handlers()
         self._compare(LOG_FILE, expected, *args, **kwargs)
 
+    def assertRegexValid(self, s, msg=None):
+        """Assert that provided pattern string is a valid regular expression."""
+        try:
+            p = re.compile(s)
+        except re.error as e:
+            standardMsg = 'Invalid pattern \'{}\': {}'.format(s, e)
+            self.fail(self._formatMessage(msg, standardMsg))
+
+    def assertMultiLineRegexMatch(self, first, second, msg=None):
+        """Assert that two multi-line strings are equal, where the first one contains regular expressions to match against."""
+        # this basically combines two methods from unittest: assertMultiLineEqual and assertRegex
+        self.assertIsInstance(first, str, 'First argument is not a string')
+        self.assertIsInstance(second, str, 'Second argument is not a string')
+        firstlines = first.splitlines(keepends=False)
+        secondlines = second.splitlines(keepends=False)
+        if len(firstlines) != len(secondlines):
+            standardMsg = 'Line count mismatch: %d != %d' % (len(firstlines) != len(secondlines))
+            self.fail(self._formatMessage(msg, standardMsg))
+        for it in range(len(firstlines)):
+            self.assertRegexValid(firstlines[it], msg='at line %d' % it)
+            self.assertRegex(secondlines[it], firstlines[it], msg='at line %d' % it)
+
 
 
 
 if __name__ == '__main__':
     # buffering is required for stdout checks
-    unittest.main(module=__name__, buffer=True, exit=False)
+    unittest.main(module='tests', buffer=True, exit=False)
 
