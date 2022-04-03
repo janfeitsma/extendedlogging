@@ -16,35 +16,6 @@ LOG_FILE = os.path.join(TMP_FOLDER, 'logfile.txt')
 
 class TestExtendedLogging(unittest.TestCase):
 
-    def setUp(self):
-        # wipe temp folder
-        folder = TMP_FOLDER
-        self.folder = folder
-        if os.path.isdir(self.folder):
-            shutil.rmtree(self.folder)
-        os.mkdir(self.folder)
-        # configure logger
-        self._configure()
-
-    def _configure(self, **kwargs):
-        extendedlogging.configure(filename=LOG_FILE, **kwargs)
-
-    def tearDown(self):
-        extendedlogging.remove_all_handlers()
-
-    def _compare(self, filename, expected, regex=False):
-        actual = open(filename, 'r').read()
-        self.assertEqual(actual, expected)
-
-    def _compare_stdout(self, expected):
-        actual = sys.stdout.getvalue()
-        self.assertEqual(actual, expected)
-
-    def _compare_logfile(self, expected, *args, **kwargs):
-        # close the log file
-        extendedlogging.remove_all_handlers()
-        self._compare(LOG_FILE, expected, *args, **kwargs)
-
     def test_logging_info_default(self):
         '''Default configuration shall be to log INFO events, only to console (not file), no timestamps.'''
         # run
@@ -73,7 +44,7 @@ WARNING:test_logging_info_default:almost done
         expected_content = f"""{t}:TRACE:tests.py,\d+:tests.f:CALL *() **{empty}
 {t}:TRACE:tests.py,\d+:tests.f:RETURN None
 """
-        #self._compare_logfile(expected_content, regex=True)
+        self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
 
     def _test_trace_class_decorator(self):
@@ -165,6 +136,37 @@ TRACE: g: RETURN 3
         # verify
         expected_log_content = "TRACE: test_huge_array_condensed: [0, 1, 2, 3, 4,<375 characters truncated>\n"
         self.assertEqual(self._readLogFile(), expected_log_content)
+
+    # helper functions below
+
+    def setUp(self):
+        # wipe temp folder
+        folder = TMP_FOLDER
+        self.folder = folder
+        if os.path.isdir(self.folder):
+            shutil.rmtree(self.folder)
+        os.mkdir(self.folder)
+        # configure logger
+        self._configure()
+
+    def _configure(self, **kwargs):
+        extendedlogging.configure(filename=LOG_FILE, **kwargs)
+
+    def tearDown(self):
+        extendedlogging.remove_all_handlers()
+
+    def _compare(self, filename, expected, regex=False):
+        actual = open(filename, 'r').read()
+        self.assertEqual(actual, expected)
+
+    def _compare_stdout(self, expected):
+        actual = sys.stdout.getvalue()
+        self.assertEqual(actual, expected)
+
+    def _compare_logfile(self, expected, *args, **kwargs):
+        # close the log file
+        extendedlogging.remove_all_handlers()
+        self._compare(LOG_FILE, expected, *args, **kwargs)
 
 
 
