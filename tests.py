@@ -47,6 +47,24 @@ WARNING:test_logging_info_default:almost done
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
 
+    def test_mixed_stdout_file(self):
+        '''It is possible to mix both logging styles: basic messages to stdout, more detail (tracing) is logged to file.'''
+        # setup
+        self._configure(tracing=True)
+        # run
+        @extendedlogging.traced
+        def f():
+            extendedlogging.info('hi')
+            extendedlogging.debug('debug message')
+            extendedlogging.warning('almost done')
+        f()
+        # verify
+        expected_stdout = """INFO   :f:hi
+WARNING:f:almost done
+"""
+        self._compare_stdout(expected_stdout)
+        self._compare_logfile_linecount(5)
+
     def _test_trace_class_decorator(self):
         '''Apply tracing decorator to a little class.'''
         # setup
@@ -140,6 +158,7 @@ TRACE: g: RETURN 3
     # helper functions below
 
     def setUp(self):
+        extendedlogging.remove_all_handlers()
         # wipe temp folder
         folder = TMP_FOLDER
         self.folder = folder
@@ -169,6 +188,12 @@ TRACE: g: RETURN 3
         extendedlogging.remove_all_handlers()
         self._compare(LOG_FILE, expected, *args, **kwargs)
 
+    def _compare_logfile_linecount(self, expected_linecount):
+        # close the log file
+        extendedlogging.remove_all_handlers()
+        actual_linecount = len(open(LOG_FILE, 'r').readlines())
+        self.assertEqual(actual_linecount, expected_linecount)
+
     def assertRegexValid(self, s, msg=None):
         """Assert that provided pattern string is a valid regular expression."""
         try:
@@ -185,7 +210,7 @@ TRACE: g: RETURN 3
         firstlines = first.splitlines(keepends=False)
         secondlines = second.splitlines(keepends=False)
         if len(firstlines) != len(secondlines):
-            standardMsg = 'Line count mismatch: %d != %d' % (len(firstlines) != len(secondlines))
+            standardMsg = 'Line count mismatch: %d != %d' % (len(firstlines), len(secondlines))
             self.fail(self._formatMessage(msg, standardMsg))
         for it in range(len(firstlines)):
             self.assertRegexValid(firstlines[it], msg='at line %d' % it)
