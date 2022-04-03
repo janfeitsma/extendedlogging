@@ -66,7 +66,6 @@ class Configuration():
             self.clear()
         # configure logging
         self.config = self.make_config_dict()
-        #print(self.config)
         logging.config.dictConfig(self.config)
         return logging.getLogger(self.name)
 
@@ -88,7 +87,7 @@ class Configuration():
             result['loggers'][self.name]['handlers'].append('loghandler')
         if self.tracing:
             result['formatters']['traceformatter'] = {'format': self.format_file}
-            result['handlers']['tracehandler'] = {'class': 'logging.FileHandler', 'level': self.level_file, 'formatter': 'traceformatter', 'filename': self.filename}
+            result['handlers']['tracehandler'] = {'class': 'logging.FileHandler', 'level': self.level_file, 'formatter': 'traceformatter', 'filename': self.filename, 'delay': True}
             result['loggers'][self.name]['handlers'].append('tracehandler')
         return result
 
