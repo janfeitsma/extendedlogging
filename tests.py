@@ -10,90 +10,71 @@ import extendedlogging
 # constants
 TMP_FOLDER = '/tmp/test_extendedlogging'
 LOG_FILE = os.path.join(TMP_FOLDER, 'logfile.txt')
-STDOUT_FILE = os.path.join(TMP_FOLDER, 'stdoutfile.txt')
 
 
-
-class LoggingTestCaseContextManager():
-    '''Context manager for logging test cases. Captures various kinds of logging and store for inspection.'''
-    def __init__(self):
-        folder = TMP_FOLDER
-        self.folder = folder
-        if os.path.isdir(self.folder):
-            shutil.rmtree(self.folder)
-        os.mkdir(self.folder)
-        self._file_stdout = open(STDOUT_FILE, 'w')
-        self._context_stdout = contextlib.redirect_stdout(self._file_stdout)
-    def __enter__(self):
-        # reset any previous open handlers - TODO: move into extendedlogging.configure()
-        root = extendedlogging.logging.root
-        for handler in root.handlers[:]:
-            root.removeHandler(handler)
-        # configure
-        extendedlogging.extendedConfig(format='%(levelname)s: %(funcName)s: %(message)s',
-            filename=LOG_FILE,
-            filemode='w',
-            level=extendedlogging.TRACE)
-        self._context_stdout.__enter__()
-    def __exit__(self, *args):
-        self._context_stdout.__exit__(*args)
-        self._file_stdout.close()
 
 
 class TestExtendedLogging(unittest.TestCase):
 
     def setUp(self):
-        pass # self._setupLogger()
+        # wipe temp folder
+        folder = TMP_FOLDER
+        self.folder = folder
+        if os.path.isdir(self.folder):
+            shutil.rmtree(self.folder)
+        os.mkdir(self.folder)
+        # configure logger
+        self._configure()
+
+    def _configure(self, **kwargs):
+        extendedlogging.configure(filename=LOG_FILE, **kwargs)
 
     def tearDown(self):
-        pass
+        extendedlogging.remove_all_handlers()
 
-    def _setupLogger(self, level=extendedlogging.TRACE):
-        # TODO REMOVE? or move magic into extendedlogging.configure()
-        # reset configuration overrides
-        extendedlogging.ARRAY_SIZE_LIMIT = None
-        extendedlogging.STRING_SIZE_LIMIT = None
-        # reset any previous open handlers
-        root = extendedlogging.logging.root
-        for handler in root.handlers[:]:
-            root.removeHandler(handler)
-        logfile = TestExtendedLogging.TMP_OUTPUT_FILE
-        if os.path.isfile(logfile):
-            os.remove(logfile)
-        extendedlogging.extendedConfig(format='%(levelname)s: %(funcName)s: %(message)s',
-            filename=logfile,
-            filemode='w',
-            level=level)
+    def _compare(self, filename, expected, regex=False):
+        actual = open(filename, 'r').read()
+        self.assertEqual(actual, expected)
 
-    def _compare_result(self, expected_stdout=None, expected_logfile=None):
-        if not expected_stdout is None:
-            actual_stdout = open(STDOUT_FILE, 'r').read()
-            self.assertEqual(actual_stdout, expected_stdout)
-        if not expected_logfile is None:
-            actual_logcontent = open(LOG_FILE, 'r').read()
-            self.assertEqual(actual_logcontent, expected_logfile)
+    def _compare_stdout(self, expected):
+        actual = sys.stdout.getvalue()
+        self.assertEqual(actual, expected)
 
-    def test_logging_info(self):
-        '''Log using standard INFO level.'''
+    def _compare_logfile(self, expected, *args, **kwargs):
+        # close the log file
+        extendedlogging.remove_all_handlers()
+        self._compare(LOG_FILE, expected, *args, **kwargs)
+
+    def test_logging_info_default(self):
+        '''Default configuration shall be to log INFO events, only to console (not file), no timestamps.'''
         # run
-        with LoggingTestCaseContextManager():
-            extendedlogging.info('hi')
+        extendedlogging.info('hi') # show
+        extendedlogging.debug('debug message') # hide, debug level is lower than default info level
+        extendedlogging.warning('almost done') # show, warning level is higher
         # verify
-        expected_content = """INFO: test_logging_info: hi\n"""
-        self._compare_result(None, expected_content)
+        expected_content = """INFO   :test_logging_info_default:hi
+WARNING:test_logging_info_default:almost done
+"""
+        self._compare_stdout(expected_content)
+        self.assertFalse(os.path.isfile(LOG_FILE))
 
     def test_trace_function_decorator(self):
-        '''Apply tracing decorator to a little function.'''
+        '''Apply tracing decorator to a little function. It shall only appear in logfile, not console.'''
         # setup
+        self._configure(tracing=True)
+        # run
         @extendedlogging.traced
         def f():
             pass
-        # run
-        with LoggingTestCaseContextManager():
-            f()
+        f()
         # verify
-        expected_content = """TRACE: f: CALL *() **{}\nTRACE: f: RETURN None\n"""
-        self._compare_result(None, expected_content)
+        t = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}' # millisecond resolution
+        empty = ''
+        expected_content = f"""{t}:TRACE:tests.py,\d+:tests.f:CALL *() **{empty}
+{t}:TRACE:tests.py,\d+:tests.f:RETURN None
+"""
+        #self._compare_logfile(expected_content, regex=True)
+        self._compare_stdout("")
 
     def _test_trace_class_decorator(self):
         '''Apply tracing decorator to a little class.'''
@@ -189,5 +170,6 @@ TRACE: g: RETURN 3
 
 
 if __name__ == '__main__':
-    unittest.main()    
-        
+    # buffering is required for stdout checks
+    unittest.main(module=__name__, buffer=True, exit=False)
+

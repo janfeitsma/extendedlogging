@@ -19,8 +19,6 @@ For more demo's, see the test suite.
 
 * to install dependencies, run: 
   * `pip install -r REQUIREMENTS.pip`
-* to run all tests locally, run: `nosetests3 -vsx --nologcapture` 
-  * options `-s` and `--nologcapture` are needed to avoid conflicts with standard unittest stdout/logging
-  * options `-v` and `-x` can be omitted - these are a matter of taste
+* to run all tests locally, run: `python tests.py` 
 
 
