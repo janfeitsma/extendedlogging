@@ -68,7 +68,7 @@ WARNING:f:almost done
     def test_trace_class_decorator(self):
         '''The magical beauty of the tracing decorator is that it can be applied to a class.'''
         # setup
-        self._configure(tracing=True, format_file='%(levelname)s:%(funcName)s: %(message)s')
+        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s')
         # run
         @extendedlogging.traced
         class myclass():

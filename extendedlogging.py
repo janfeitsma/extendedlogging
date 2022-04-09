@@ -28,51 +28,94 @@ MAIN_LOGGER_NAME = ''
 
 def configure(**kwargs):
     # TODO: module __doc__; describe all options (or write out kwargs?)
-    c = Configuration(**kwargs)
+    c = MixedConfiguration(**kwargs)
     c.apply()
 
+
 def remove_all_handlers():
+    """Blunt reset: remove all handlers registered in logging module."""
     handlers = logging.root.handlers[:]
     for handler in handlers:
         logging.root.removeHandler(handler)
         handler.close()
 
 
-
-class Configuration():
+class ConsoleConfiguration():
+    """Configuration for logging to console."""
     def __init__(self, **kwargs):
-        self.name = MAIN_LOGGER_NAME
-        self.console = True # stdout
-        self.tracing = False
-        self.reset = True
-        self.filename = DEFAULT_LOG_FILE
-        self.format_stdout = '%(levelname)-7s:%(funcName)s:%(message)s'
-        self.format_file = '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(name)s.%(funcName)s:%(message)s'
-        self.level_stdout = logging.INFO
-        self.level_file = autologging.TRACE
-        self.config = None
+        self.enabled = True
+        self.stream = sys.stdout
+        self.format = '%(levelname)-7s:%(funcName)s:%(message)s'
+        self.level = logging.INFO
         # set overruled options, if any
         self.__dict__.update(kwargs)
+
+
+class FileConfiguration():
+    """Configuration for logging/tracing to file."""
+    def __init__(self, **kwargs):
+        self.enabled = True
+        self.filename = DEFAULT_LOG_FILE
+        self.format = '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(name)s.%(funcName)s:%(message)s'
+        self.level = autologging.TRACE
+        # set overruled options, if any
+        self.__dict__.update(kwargs)
+
+    def clear_file(self):
+        if os.path.exists(self.filename) and self.enabled:
+            os.remove(self.filename)
+
+
+def distribute_attributes(kv, objects):
+    """Utility to distribute attributes over objects, dynamically figuring out which one is providing the option."""
+    for (k,v) in kv.items():
+        # check for a prefix
+        match = False
+        for (p,o) in objects.items():
+            if k.startswith(p):
+                setattr(o, k.replace(p, ''), v)
+                match = True
+                break
+        if match:
+            break
+        # check if there is exactly one of the objects which has one of the parameters
+        match = None
+        for (p,o) in objects.items():
+            if hasattr(o, k):
+                if not match is None:
+                    raise Exception('ambiguous option {} given'.format(k))
+                match = o
+        if match is None:
+            raise Exception('non-existing option {} given'.format(k))
+        setattr(match, k, v)
+
+
+class MixedConfiguration():
+    """Combine ConsoleConfiguration with FileConfiguration and configure the logging module."""
+    def __init__(self, **kwargs):
+        self.name = MAIN_LOGGER_NAME
+        self.console_config = ConsoleConfiguration(enabled=True) # stdout
+        self.file_config = FileConfiguration(enabled=False)
+        self.config_dict = None
+        self.file_config.enabled = kwargs.pop('tracing', False)
+        distribute_attributes(kwargs, {'console_': self.console_config, 'file_': self.file_config})
 
     def clear(self):
         """Reset/clear logging configuration / handlers."""
         remove_all_handlers()
         # cleanup log file if existing
-        if os.path.exists(self.filename) and self.tracing:
-            os.remove(self.filename)
+        self.file_config.clear_file()
 
     def apply(self):
         """Apply the configuration."""
         # check if autologging has been disabled (typically via environment variable)
         if autologging.traced == autologging._traced_noop:
-            self.tracing = False
-        # reset?
-        if self.reset:
-            self.clear()
+            self.file_config.enabled = False
+        # reset
+        self.clear()
         # configure logging
-        self.config = self.make_config_dict()
-        logging.config.dictConfig(self.config)
-        #print(self.config)
+        self.config_dict = self.make_config_dict()
+        logging.config.dictConfig(self.config_dict)
         return logging.getLogger(self.name)
 
     def make_config_dict(self):
@@ -87,13 +130,16 @@ class Configuration():
                 },
             },
         }
-        if self.console:
-            result['formatters']['logformatter'] = {'format': self.format_stdout}
-            result['handlers']['loghandler'] = {'class': 'logging.StreamHandler', 'stream': sys.stdout, 'level': self.level_stdout, 'formatter': 'logformatter'}
+        # console configuration
+        cfg = self.console_config
+        if cfg.enabled:
+            result['formatters']['logformatter'] = {'format': cfg.format}
+            result['handlers']['loghandler'] = {'class': 'logging.StreamHandler', 'stream': cfg.stream, 'level': cfg.level, 'formatter': 'logformatter'}
             result['loggers'][self.name]['handlers'].append('loghandler')
-        if self.tracing:
-            result['formatters']['traceformatter'] = {'format': self.format_file}
-            result['handlers']['tracehandler'] = {'class': 'logging.FileHandler', 'level': self.level_file, 'formatter': 'traceformatter', 'filename': self.filename}
+        cfg = self.file_config
+        if cfg.enabled:
+            result['formatters']['traceformatter'] = {'format': cfg.format}
+            result['handlers']['tracehandler'] = {'class': 'logging.FileHandler', 'level': cfg.level, 'formatter': 'traceformatter', 'filename': cfg.filename}
             result['loggers'][self.name]['handlers'].append('tracehandler')
         return result
 
