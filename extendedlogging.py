@@ -54,13 +54,14 @@ class FileConfiguration():
         self.enabled = True
         self.filename = DEFAULT_LOG_FILE
         self.format = '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(name)s.%(funcName)s:%(message)s'
+        self.timestamp_resolution = 6
         self.level = autologging.TRACE
         self.fold_newlines = True
         # set overruled options, if any
         self.__dict__.update(kwargs)
 
     def get_formatter(self):
-        return TraceFormatter(self.format, fold_newlines=self.fold_newlines)
+        return TraceFormatter(self.format, fold_newlines=self.fold_newlines, timestamp_resolution=self.timestamp_resolution)
 
     def clear_file(self):
         if os.path.exists(self.filename) and self.enabled:
@@ -150,10 +151,13 @@ class MixedConfiguration():
 
 
 class TraceFormatter(logging.Formatter):
-    """Custom formatter."""
+    """Custom formatter, intended for logging/tracing to file."""
     def __init__(self, fmt, **kwargs):
         logging.Formatter.__init__(self, fmt=fmt)
         self.fold_newlines = kwargs.get('fold_newlines', True)
+        self.timestamp_resolution = int(kwargs.get('timestamp_resolution', 6))
+        assert(self.timestamp_resolution >= 1)
+        assert(self.timestamp_resolution <= 9)
 
     def format(self, record):
         # step: build the message
@@ -163,4 +167,15 @@ class TraceFormatter(logging.Formatter):
             result_string = result_string.replace('\n', '\\n')
         # done
         return result_string
+
+    def formatTime(self, record, datefmt=None):
+        if datefmt is not None:
+            return super().formatTime(record, datefmt)
+        ct = self.converter(record.created)
+        t = time.strftime(self.default_time_format, ct)
+        scale_factor = 10**self.timestamp_resolution
+        fractional = int(scale_factor * (record.created % 1))
+        t_format = '%s,%0' + str(self.timestamp_resolution) + 'd'
+        s = t_format % (t, fractional)
+        return s
 

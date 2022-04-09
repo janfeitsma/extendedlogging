@@ -29,23 +29,30 @@ WARNING:test_logging_info_default:almost done
         self._compare_stdout(expected_content)
         self.assertFalse(os.path.isfile(LOG_FILE))
 
-    def test_trace_function_decorator_timestamp(self):
-        '''Apply tracing decorator to a little function. It shall only appear in logfile, not console, default with timestamps.'''
+    def _template_trace_function_decorator_timestamp(self, check_digits=6, **kwargs):
         # setup
-        self._configure(tracing=True)
+        self._configure(tracing=True, **kwargs)
         # run
         @extendedlogging.traced
         def f():
             pass
         f()
         # verify
-        t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}' # timestamp with millisecond resolution
+        t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{' + str(check_digits) + '}' # timestamp with millisecond or microsecond resolution
         empty = '{}'
         expected_content = f"""{t}:TRACE:tests.py,\d+:root.f:CALL \*\(\) \*\*{empty}
 {t}:TRACE:tests.py,\d+:root.f:RETURN None
 """
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
+
+    def test_trace_function_decorator_timestamp(self):
+        '''Apply tracing decorator to a little function. It shall only appear in logfile, not console, default with timestamps (microsecond resolution).'''
+        self._template_trace_function_decorator_timestamp(check_digits=6)
+
+    def test_timestamp_custom_millisecond_resolution(self):
+        '''Check that tracing timestamps can also be logged with traditional reduced millisecond resolution.'''
+        self._template_trace_function_decorator_timestamp(check_digits=3, file_timestamp_resolution=3)
 
     def test_mixed_stdout_file(self):
         '''It is possible to mix both logging styles: basic messages to stdout, more detail (tracing) is logged to file.'''
@@ -91,7 +98,7 @@ TRACE:g: RETURN 3
 """
         self._compare_logfile(expected_content)
 
-    def _test_newline_folding(self, expected_logfile_linecount, **kwargs):
+    def _template_newline_folding(self, expected_logfile_linecount, **kwargs):
         # setup
         self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', **kwargs)
         # run
@@ -101,19 +108,19 @@ TRACE:g: RETURN 3
         # run
         extendedlogging.info(string_with_newlines)
         # verify
-        expected_stdout = "INFO   :_test_newline_folding:" + string_with_newlines + "\n"
+        expected_stdout = "INFO   :_template_newline_folding:" + string_with_newlines + "\n"
         self._compare_stdout(expected_stdout) # 3 lines, as original
         self._compare_logfile_linecount(expected_logfile_linecount) # could be 3 lines folded into 1
 
     def test_newline_folding(self):
         '''By default, newlines should be folded into a single line in the tracing file.'''
         expected_logfile_linecount = 1
-        self._test_newline_folding(expected_logfile_linecount) # fold_newlines=True
+        self._template_newline_folding(expected_logfile_linecount) # fold_newlines=True
 
     def test_newline_folding_disabled(self):
         '''Optionally newlines are left unfolded in the tracing file.'''
         expected_logfile_linecount = 3
-        self._test_newline_folding(expected_logfile_linecount, fold_newlines=False)
+        self._template_newline_folding(expected_logfile_linecount, fold_newlines=False)
 
     def _test_huge_string_as_is(self):
         '''By default, a huge string is logged as is.'''
