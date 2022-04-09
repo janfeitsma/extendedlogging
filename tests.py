@@ -91,18 +91,29 @@ TRACE:g: RETURN 3
 """
         self._compare_logfile(expected_content)
 
-    def _test_newline_folding(self):
-        '''Newlines should be folded into a single line.'''
+    def _test_newline_folding(self, expected_logfile_linecount, **kwargs):
         # setup
-        self._setupLogger()
+        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', **kwargs)
+        # run
         string_with_newlines = """This is line 1.
         This is line 2,
         finally we have line 3."""
         # run
         extendedlogging.info(string_with_newlines)
         # verify
-        expected_log_content = "INFO: test_newline_folding: This is line 1.\\n        This is line 2,\\n        finally we have line 3.\n"
-        self.assertEqual(self._readLogFile(), expected_log_content)
+        expected_stdout = "INFO   :_test_newline_folding:" + string_with_newlines + "\n"
+        self._compare_stdout(expected_stdout) # 3 lines, as original
+        self._compare_logfile_linecount(expected_logfile_linecount) # could be 3 lines folded into 1
+
+    def test_newline_folding(self):
+        '''By default, newlines should be folded into a single line in the tracing file.'''
+        expected_logfile_linecount = 1
+        self._test_newline_folding(expected_logfile_linecount) # fold_newlines=True
+
+    def test_newline_folding_disabled(self):
+        '''Optionally newlines are left unfolded in the tracing file.'''
+        expected_logfile_linecount = 3
+        self._test_newline_folding(expected_logfile_linecount, fold_newlines=False)
 
     def _test_huge_string_as_is(self):
         '''By default, a huge string is logged as is.'''
