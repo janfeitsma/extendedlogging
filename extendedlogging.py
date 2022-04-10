@@ -23,6 +23,8 @@ MAIN_LOGGER_NAME = ''
 DEFAULT_NEWLINE_FOLDING = True
 DEFAULT_TIMESTAMP_RESOLUTION = 6
 DEFAULT_STRING_SIZE_LIMIT = 1000
+DEFAULT_ARRAY_SIZE_LIMIT = 10
+DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner
 
 
 def configure(**kwargs):
@@ -60,6 +62,8 @@ class FileConfiguration():
         self.level = autologging.TRACE
         self.fold_newlines = DEFAULT_NEWLINE_FOLDING
         self.string_size_limit = DEFAULT_STRING_SIZE_LIMIT
+        self.array_size_limit = DEFAULT_ARRAY_SIZE_LIMIT
+        self.array_tail_truncation = DEFAULT_ARRAY_TAIL_TRUNCATION
         # set overruled options, if any
         self.__dict__.update(kwargs)
 
@@ -155,6 +159,19 @@ class MixedConfiguration():
         return result
 
 
+class RecursiveVisitor():
+    """Helper, useful to fold long arrays."""
+    def __init__(self, types, function):
+        self.types = types
+        self.function = function
+    def apply(self, args):
+        result = args
+        t = type(args)
+        if t in self.types:
+            result = t([self.apply(arg) for arg in self.function(args)])
+        return result
+
+
 class TraceFormatter(logging.Formatter):
     """Custom formatter, intended for logging/tracing to file."""
     def __init__(self, fmt, **kwargs):
@@ -162,10 +179,28 @@ class TraceFormatter(logging.Formatter):
         self.fold_newlines = kwargs.get('fold_newlines', DEFAULT_NEWLINE_FOLDING)
         self.timestamp_resolution = int(kwargs.get('timestamp_resolution', DEFAULT_TIMESTAMP_RESOLUTION))
         self.string_size_limit = int(kwargs.get('string_size_limit', DEFAULT_STRING_SIZE_LIMIT))
+        self.array_size_limit = int(kwargs.get('array_size_limit', DEFAULT_ARRAY_SIZE_LIMIT))
+        self.array_tail_truncation = kwargs.get('array_tail_truncation', DEFAULT_ARRAY_TAIL_TRUNCATION)
         assert(self.timestamp_resolution >= 1)
         assert(self.timestamp_resolution <= 9)
 
     def format(self, record):
+        # step: compress arrays in self.args a-la numpy
+        if self.array_size_limit != None:
+            def truncate_tail(arg):
+                if len(arg) <= self.array_size_limit:
+                    return arg
+                return list(arg[:self.array_size_limit]) + ['...']
+            def truncate_interior(arg):
+                if len(arg) <= self.array_size_limit:
+                    return arg
+                n1 = int((1 + self.array_size_limit) / 2)
+                n2 = n1 + len(arg) - self.array_size_limit
+                arg1 = list(arg[:n1])
+                arg2 = list(arg[n2:])
+                return arg1 + ['...'] + arg2
+            truncate_function = [truncate_interior, truncate_tail][self.array_tail_truncation]
+            record.args = RecursiveVisitor(types=(tuple,list), function=truncate_function).apply(record.args)
         # step: build the message
         result_string = super(TraceFormatter, self).format(record)
         # step: remove newlines, ensure every entry is on a single line (to make post-processing easier)

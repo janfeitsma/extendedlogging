@@ -147,6 +147,46 @@ TRACE:g: RETURN 3
         self.assertGreater(max_linesize, 4000)
         self.assertLess(max_linesize, 5000)
 
+    def test_huge_array_default_inner_truncation(self):
+        '''By default, a huge array in tracing is truncated on the interior, like numpy repr().'''
+        arg = list(range(100))
+        max_linesize = self._template_trace_it(arg, file_format='%(levelname)s:%(funcName)s: %(message)s')
+        # verify
+        expected_content = """TRACE:f: CALL *([0, 1, 2, 3, 4, '...', 95, 96, 97, 98, 99],) **{}
+TRACE:f: RETURN None
+"""
+        self._compare_logfile(expected_content)
+
+    def test_huge_array_full(self):
+        '''Optionally, huge array cutting can be disabled.'''
+        arg = list(range(100))
+        max_linesize = self._template_trace_it(arg, file_format='%(levelname)s:%(funcName)s: %(message)s', array_size_limit=100)
+        # verify
+        expected_content = """TRACE:f: CALL *([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99],) **{}
+TRACE:f: RETURN None
+"""
+        self._compare_logfile(expected_content)
+
+    def test_huge_array_end_truncation(self):
+        '''Optionally, huge array cutting can be set to tail truncation instead of inner truncation.'''
+        arg = list(range(100))
+        max_linesize = self._template_trace_it(arg, file_format='%(levelname)s:%(funcName)s: %(message)s', array_tail_truncation=True)
+        # verify
+        expected_content = """TRACE:f: CALL *([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, '...'],) **{}
+TRACE:f: RETURN None
+"""
+        self._compare_logfile(expected_content)
+
+    def test_recursive_array_trunctation(self):
+        '''Array truncation even works recursively, on lists and tuples.'''
+        arg = (['s1',('a','b','c'),'drop','e1'], 'keep', 'drop', ('s2',['d',range(100),'f'],None,'e2'))
+        max_linesize = self._template_trace_it(arg, file_format='%(levelname)s:%(funcName)s: %(message)s', array_size_limit=3)
+        # verify
+        expected_content = """TRACE:f: CALL *((['s1', ('a', 'b', 'c'), '...', 'e1'], 'keep', '...', ('s2', ['d', range(0, 100), 'f'], '...', 'e2')),) **{}
+TRACE:f: RETURN None
+"""
+        self._compare_logfile(expected_content)
+
     # helper functions below
 
     def setUp(self):
