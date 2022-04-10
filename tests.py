@@ -122,57 +122,30 @@ TRACE:g: RETURN 3
         expected_logfile_linecount = 3
         self._template_newline_folding(expected_logfile_linecount, fold_newlines=False)
 
-    def _test_huge_string_as_is(self):
-        '''By default, a huge string is logged as is.'''
+    def _template_trace_it(self, trace_args, **kwargs):
         # setup
-        self._setupLogger()
-        huge_string = str(range(100))
-        # run
-        extendedlogging.log(extendedlogging.TRACE, huge_string)
-        # verify
-        expected_log_content = "TRACE: test_huge_string_as_is: " + str(range(100)) + "\n"
-        self.assertEqual(self._readLogFile(), expected_log_content)
-
-    def _test_huge_string_condensed(self):
-        '''If so configured, a huge string should be cut.'''
-        # setup
-        self._setupLogger()
-        extendedlogging.STRING_SIZE_LIMIT = 50
-        huge_string = str(range(100))
-        # run
-        extendedlogging.log(extendedlogging.TRACE, huge_string)
-        # verify
-        expected_log_content = "TRACE: test_huge_string_condensed: [0, 1, 2, 3, 4,<375 characters truncated>\n"
-        self.assertEqual(self._readLogFile(), expected_log_content)
-
-    def _not_implemented_test_huge_array_as_is(self):
-        '''By default, a huge array is logged as is.'''
-        # setup
-        self._setupLogger()
-        huge_array = range(100)
+        self._configure(tracing=True, **kwargs)
         # run
         @extendedlogging.traced
-        def f(arg1, arg2):
+        def f(trace_args):
             pass
-        f(huge_array, tuple(reversed(huge_array)))
-        # verify
-        expected_log_content = "TRACE: f: CALL *(" + str(range(100)) + ", " + str(tuple(reversed(huge_array))) + ") **{}\nTRACE: f: RETURN None\n"
-        self.assertEqual(self._readLogFile(), expected_log_content)
+        f(trace_args)
 
-    def _not_implemented_test_huge_array_condensed(self):
-        '''If so configured, a huge array should be displayed with the interior removed, as numpy would do.'''
-        # setup
-        self._setupLogger()
-        extendedlogging.ARRAY_SIZE_LIMIT = 10
-        huge_array = range(10000)
-        # run
-        @extendedlogging.traced
-        def f(arg1, arg2):
-            pass
-        f(huge_array, tuple(reversed(huge_array)))
-        # verify
-        expected_log_content = "TRACE: test_huge_array_condensed: [0, 1, 2, 3, 4,<375 characters truncated>\n"
-        self.assertEqual(self._readLogFile(), expected_log_content)
+    def test_huge_string_default_cut(self):
+        '''By default, a huge string in tracing is cut off at some point.'''
+        s = str(list(range(1000)))
+        self.assertEqual(len(s), 4890)
+        self._template_trace_it(s)
+        self.assertEqual(self._get_logfile_max_linesize(), 1000)
+
+    def test_huge_string_optional_longer_lines(self):
+        '''Optionally, the tracing string cutoff limit can be increased.'''
+        s = str(list(range(1000)))
+        self.assertEqual(len(s), 4890)
+        self._template_trace_it(s, string_size_limit=10000)
+        max_linesize = self._get_logfile_max_linesize()
+        self.assertGreater(max_linesize, 4000)
+        self.assertLess(max_linesize, 5000)
 
     # helper functions below
 
@@ -212,6 +185,16 @@ TRACE:g: RETURN 3
         extendedlogging.remove_all_handlers()
         actual_linecount = len(open(LOG_FILE, 'r').readlines())
         self.assertEqual(actual_linecount, expected_linecount)
+
+    def _get_logfile_max_linesize(self, strip=True):
+        # close the log file
+        extendedlogging.remove_all_handlers()
+        result = 0
+        for line in open(LOG_FILE, 'r').readlines():
+            if strip:
+                line = line.strip()
+            result = max(result, len(line))
+        return result
 
     def assertRegexValid(self, s, msg=None):
         """Assert that provided pattern string is a valid regular expression."""
