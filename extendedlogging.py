@@ -1,4 +1,23 @@
-"""Combine standard python logging with autologging/tracing."""
+"""Combine standard python logging with autologging/tracing.
+
+The module deals the API's of both logging and autologging.
+It also implements some extra features:
+    * microsecond timestamp resolution
+    * ensure tracing files have one logging/tracing entry per line
+    * limit tracing line- and array sizes, to prevent excessive file growth
+
+To enable/configure: just call configure(). It accepts the following options:
+    tracing                # boolean, default disabled, when enabled logging (and tracing) is written to file
+    filename               # trace file name, default {DEFAULT_LOG_FILE}
+    timestamp_resolution   # tracing timestamp resolution, default {DEFAULT_TIMESTAMP_RESOLUTION}
+    fold_newlines          # tracing newline folding, default {DEFAULT_NEWLINE_FOLDING}
+    string_size_limit      # tracing string size limit, default {DEFAULT_STRING_SIZE_LIMIT}
+    array_size_limit       # tracing array size limit, default {DEFAULT_ARRAY_SIZE_LIMIT}
+    array_tail_truncation  # tracing array trunctation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
+    *_format               # logging format to use
+    *_level                # logging level to use
+Where applicable (as marked with *_), the option prefix must be either 'file' or 'console'.
+"""
 __author__ = 'Jan Feitsma'
 
 import sys
@@ -28,9 +47,9 @@ DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner
 
 
 def configure(**kwargs):
-    # TODO: module __doc__; describe all options (or write out kwargs?)
     c = MixedConfiguration(**kwargs)
     c.apply()
+configure.__doc__ = __doc__.format(**vars()) # trick to fill in the default values, although this might not be really how __doc__ was intended
 
 
 def remove_all_handlers():
