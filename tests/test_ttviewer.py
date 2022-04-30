@@ -54,6 +54,30 @@ Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using trac
         self.assertTrue(os.path.isfile(htmlfile))
         self.assertMultiLineRegexMatch(expected_output, actual_output)
 
+    def test_json_html_render(self):
+        '''Operate on a sample json file and render webpage using selenium.'''
+        htmlfile = os.path.join(TMPDIR, 'ttviewer.html')
+        # pre-clean
+        if os.path.isfile(htmlfile):
+            os.remove(htmlfile)
+        # create html
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_fib.log')
+        args = ['-n', logfile]
+        self._run_cmd(TTVIEWER, *args)
+        # render html, convert to png
+        from selenium import webdriver
+        from time import sleep
+        browser = webdriver.Firefox()
+        browser.get('file://' + htmlfile)
+        sleep(1)
+        actual_png = '/tmp/ttviewer/ttviewer.png'
+        expected_png = os.path.join(BASEDIR, 'tests', 'demo_fib.png')
+        browser.get_screenshot_as_file(actual_png)
+        browser.quit()
+        # compare png hashes
+        expected_md5 = self._run_cmd('md5sum', expected_png).split()[0]
+        actual_md5 = self._run_cmd('md5sum', actual_png).split()[0]
+        self.assertEqual(expected_md5, actual_md5)
 
     # helper functions below
 
