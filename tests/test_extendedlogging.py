@@ -1,10 +1,10 @@
-import sys
+# system imports
 import os
 import shutil
 import re
 import unittest
 
-# get system under test
+# own imports
 import extendedlogging
 
 # constants
@@ -40,8 +40,8 @@ WARNING:test_logging_info_default:almost done
         # verify
         t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{' + str(check_digits) + '}' # timestamp with millisecond or microsecond resolution
         empty = '{}'
-        expected_content = f"""{t}:TRACE:tests.py,\d+:root.f:CALL \*\(\) \*\*{empty}
-{t}:TRACE:tests.py,\d+:root.f:RETURN None
+        expected_content = f"""{t}:TRACE:test_extendedlogging.py,\d+:root.f:CALL \*\(\) \*\*{empty}
+{t}:TRACE:test_extendedlogging.py,\d+:root.f:RETURN None
 """
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
@@ -263,5 +263,5 @@ TRACE:f: RETURN None
 
 if __name__ == '__main__':
     # buffering is required for stdout checks
-    unittest.main(module='tests', buffer=True, exit=False)
+    unittest.main(buffer=True, exit=False)
 

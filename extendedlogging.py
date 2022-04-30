@@ -36,7 +36,7 @@ from autologging import *
 autologging._generate_logger_name = lambda *args, **kwargs: MAIN_LOGGER_NAME
 
 # constants
-DEFAULT_LOG_FILE = '/tmp/extendedlogging.txt'
+DEFAULT_LOG_FILE = '/tmp/extendedlogging.log'
 BASIC_FORMAT = "%(levelname)s:%(name)s:%(message)s"
 MAIN_LOGGER_NAME = ''
 DEFAULT_NEWLINE_FOLDING = True

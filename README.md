@@ -65,6 +65,6 @@ For more demo's, see the code snippets in the test suite.
 
 * to install dependencies, run: 
   * `pip install -r REQUIREMENTS.pip`
-* to run all tests locally, run: `python tests.py` 
+* to run all tests locally, run: `python tests/test_extendedlogging.py`
 
 
