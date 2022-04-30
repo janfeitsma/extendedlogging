@@ -19,6 +19,7 @@ __author__ = 'Jan Feitsma'
 # system imports
 import sys
 import os
+import time
 import argparse
 import subprocess
 import traceback
@@ -78,9 +79,14 @@ class TraceViewer(object):
         # otherwise: convert to temporary tgtfile
         tgtfile = os.path.join(self.tmpdir, 'ttviewer' + tgt)
         srcfile = ensure_src() # may also trigger convert
-        self._message('Converting {} to {} ...'.format(srcfile, tgtfile), newline=False)
-        converter(srcfile, tgtfile)
-        self._message(' done ({})\n'.format(self._filesize(tgtfile)))
+        self._message('Converting {} to {} using {} ...'.format(srcfile, tgtfile, os.path.basename(converter.tool)), newline=False)
+        t_start = time.time()
+        n = converter(srcfile, tgtfile)
+        elapsed = time.time() - t_start
+        details = '{:.1f}s, {}'.format(elapsed, self._filesize(tgtfile))
+        if n:
+            details += ', n={}'.format(n)
+        self._message(' done ({})\n'.format(details))
         return tgtfile
 
     def _ensure_htmlfile(self):

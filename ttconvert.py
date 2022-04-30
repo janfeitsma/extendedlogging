@@ -41,11 +41,14 @@ def _find_utility(utility):
 
 
 def log2json(tracefilename, tmpjsonfilename):
-    cmd = 'python {} -o {} {}'.format(_find_utility(TRACE2JSON), tmpjsonfilename, tracefilename)
+    cmd = 'python {} -o {} {}'.format(log2json.tool, tmpjsonfilename, tracefilename)
     subprocess.check_output(cmd, shell=True) # capture and ignore output
+    return len(open(tmpjsonfilename).readlines())
+log2json.tool = _find_utility(TRACE2JSON)
 
 
 def json2html(jsonfile, htmlfile):
-    cmd = '{} {} --quiet --output={}'.format(_find_utility(CATAPULT_TRACE_JSON2HTML), jsonfile, htmlfile)
+    cmd = '{} {} --quiet --output={}'.format(json2html.tool, jsonfile, htmlfile)
     subprocess.run(cmd, shell=True, check=True)
+json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
 
