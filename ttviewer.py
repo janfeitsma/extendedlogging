@@ -53,7 +53,7 @@ class TraceViewer(object):
     def _message(self, message, newline=True):  
         if not self.verbose:
             return
-        if not message.endswith('\n'):
+        if not message.endswith('\n') and newline:
             message += '\n'
         sys.stdout.write(message)
         sys.stdout.flush()

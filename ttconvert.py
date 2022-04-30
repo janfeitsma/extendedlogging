@@ -42,7 +42,7 @@ def _find_utility(utility):
 
 def log2json(tracefilename, tmpjsonfilename):
     cmd = 'python {} -o {} {}'.format(_find_utility(TRACE2JSON), tmpjsonfilename, tracefilename)
-    subprocess.run(cmd, shell=True, check=True)
+    subprocess.check_output(cmd, shell=True) # capture and ignore output
 
 
 def json2html(jsonfile, htmlfile):
