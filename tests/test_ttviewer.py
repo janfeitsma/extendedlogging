@@ -67,7 +67,11 @@ Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using trac
         # render html, convert to png
         from selenium import webdriver
         from time import sleep
-        browser = webdriver.Firefox()
+        options = webdriver.firefox.options.Options()
+        options.headless = True
+        options.add_argument('--width=1280')
+        options.add_argument('--height=862') # TODO: why is resulting height only 777 pixels?!
+        browser = webdriver.Firefox(options=options)
         browser.get('file://' + htmlfile)
         sleep(1)
         actual_png = '/tmp/ttviewer/ttviewer.png'
