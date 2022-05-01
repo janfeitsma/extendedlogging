@@ -1,82 +1,82 @@
-2022-04-30 23:15:41,937085:TRACE:demo_fib.py,4:root.fib:CALL *(7,) **{}
-2022-04-30 23:15:41,937210:TRACE:demo_fib.py,4:root.fib:CALL *(6,) **{}
-2022-04-30 23:15:41,937279:TRACE:demo_fib.py,4:root.fib:CALL *(5,) **{}
-2022-04-30 23:15:41,937333:TRACE:demo_fib.py,4:root.fib:CALL *(4,) **{}
-2022-04-30 23:15:41,937381:TRACE:demo_fib.py,4:root.fib:CALL *(3,) **{}
-2022-04-30 23:15:41,937423:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,937468:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,937508:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,937579:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,937622:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,937663:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,937703:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,937741:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,937780:TRACE:demo_fib.py,4:root.fib:RETURN 2
-2022-04-30 23:15:41,937819:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,937859:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,937897:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,937937:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,937975:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,938013:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938051:TRACE:demo_fib.py,4:root.fib:RETURN 3
-2022-04-30 23:15:41,938090:TRACE:demo_fib.py,4:root.fib:CALL *(3,) **{}
-2022-04-30 23:15:41,938130:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,938170:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,938209:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938247:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,938285:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,938324:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938362:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,938401:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938439:TRACE:demo_fib.py,4:root.fib:RETURN 2
-2022-04-30 23:15:41,938476:TRACE:demo_fib.py,4:root.fib:RETURN 5
-2022-04-30 23:15:41,938515:TRACE:demo_fib.py,4:root.fib:CALL *(4,) **{}
-2022-04-30 23:15:41,938554:TRACE:demo_fib.py,4:root.fib:CALL *(3,) **{}
-2022-04-30 23:15:41,938594:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,938633:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,938671:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938710:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,938749:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,938786:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938826:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,938863:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,938901:TRACE:demo_fib.py,4:root.fib:RETURN 2
-2022-04-30 23:15:41,938939:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,938978:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,939015:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939054:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,939091:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,939129:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939166:TRACE:demo_fib.py,4:root.fib:RETURN 3
-2022-04-30 23:15:41,939203:TRACE:demo_fib.py,4:root.fib:RETURN 8
-2022-04-30 23:15:41,939242:TRACE:demo_fib.py,4:root.fib:CALL *(5,) **{}
-2022-04-30 23:15:41,939282:TRACE:demo_fib.py,4:root.fib:CALL *(4,) **{}
-2022-04-30 23:15:41,939322:TRACE:demo_fib.py,4:root.fib:CALL *(3,) **{}
-2022-04-30 23:15:41,939361:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,939399:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,939437:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939475:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,939513:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,939550:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939597:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,939636:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939674:TRACE:demo_fib.py,4:root.fib:RETURN 2
-2022-04-30 23:15:41,939712:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,939752:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,939790:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939828:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,939866:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,939903:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,939940:TRACE:demo_fib.py,4:root.fib:RETURN 3
-2022-04-30 23:15:41,939978:TRACE:demo_fib.py,4:root.fib:CALL *(3,) **{}
-2022-04-30 23:15:41,940017:TRACE:demo_fib.py,4:root.fib:CALL *(2,) **{}
-2022-04-30 23:15:41,940056:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,940093:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,940132:TRACE:demo_fib.py,4:root.fib:CALL *(0,) **{}
-2022-04-30 23:15:41,940169:TRACE:demo_fib.py,4:root.fib:RETURN 0
-2022-04-30 23:15:41,940207:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,940246:TRACE:demo_fib.py,4:root.fib:CALL *(1,) **{}
-2022-04-30 23:15:41,940284:TRACE:demo_fib.py,4:root.fib:RETURN 1
-2022-04-30 23:15:41,940320:TRACE:demo_fib.py,4:root.fib:RETURN 2
-2022-04-30 23:15:41,940358:TRACE:demo_fib.py,4:root.fib:RETURN 5
-2022-04-30 23:15:41,940395:TRACE:demo_fib.py,4:root.fib:RETURN 13
+2022-04-30 23:15:41,937085:TRACE:demo_fib.py,4:fib:CALL *(7,) **{}
+2022-04-30 23:15:41,937210:TRACE:demo_fib.py,4:fib:CALL *(6,) **{}
+2022-04-30 23:15:41,937279:TRACE:demo_fib.py,4:fib:CALL *(5,) **{}
+2022-04-30 23:15:41,937333:TRACE:demo_fib.py,4:fib:CALL *(4,) **{}
+2022-04-30 23:15:41,937381:TRACE:demo_fib.py,4:fib:CALL *(3,) **{}
+2022-04-30 23:15:41,937423:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,937468:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,937508:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,937579:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,937622:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,937663:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,937703:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,937741:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,937780:TRACE:demo_fib.py,4:fib:RETURN 2
+2022-04-30 23:15:41,937819:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,937859:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,937897:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,937937:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,937975:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,938013:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938051:TRACE:demo_fib.py,4:fib:RETURN 3
+2022-04-30 23:15:41,938090:TRACE:demo_fib.py,4:fib:CALL *(3,) **{}
+2022-04-30 23:15:41,938130:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,938170:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,938209:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938247:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,938285:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,938324:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938362:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,938401:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938439:TRACE:demo_fib.py,4:fib:RETURN 2
+2022-04-30 23:15:41,938476:TRACE:demo_fib.py,4:fib:RETURN 5
+2022-04-30 23:15:41,938515:TRACE:demo_fib.py,4:fib:CALL *(4,) **{}
+2022-04-30 23:15:41,938554:TRACE:demo_fib.py,4:fib:CALL *(3,) **{}
+2022-04-30 23:15:41,938594:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,938633:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,938671:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938710:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,938749:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,938786:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938826:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,938863:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,938901:TRACE:demo_fib.py,4:fib:RETURN 2
+2022-04-30 23:15:41,938939:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,938978:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,939015:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939054:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,939091:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,939129:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939166:TRACE:demo_fib.py,4:fib:RETURN 3
+2022-04-30 23:15:41,939203:TRACE:demo_fib.py,4:fib:RETURN 8
+2022-04-30 23:15:41,939242:TRACE:demo_fib.py,4:fib:CALL *(5,) **{}
+2022-04-30 23:15:41,939282:TRACE:demo_fib.py,4:fib:CALL *(4,) **{}
+2022-04-30 23:15:41,939322:TRACE:demo_fib.py,4:fib:CALL *(3,) **{}
+2022-04-30 23:15:41,939361:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,939399:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,939437:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939475:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,939513:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,939550:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939597:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,939636:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939674:TRACE:demo_fib.py,4:fib:RETURN 2
+2022-04-30 23:15:41,939712:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,939752:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,939790:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939828:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,939866:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,939903:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,939940:TRACE:demo_fib.py,4:fib:RETURN 3
+2022-04-30 23:15:41,939978:TRACE:demo_fib.py,4:fib:CALL *(3,) **{}
+2022-04-30 23:15:41,940017:TRACE:demo_fib.py,4:fib:CALL *(2,) **{}
+2022-04-30 23:15:41,940056:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,940093:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,940132:TRACE:demo_fib.py,4:fib:CALL *(0,) **{}
+2022-04-30 23:15:41,940169:TRACE:demo_fib.py,4:fib:RETURN 0
+2022-04-30 23:15:41,940207:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,940246:TRACE:demo_fib.py,4:fib:CALL *(1,) **{}
+2022-04-30 23:15:41,940284:TRACE:demo_fib.py,4:fib:RETURN 1
+2022-04-30 23:15:41,940320:TRACE:demo_fib.py,4:fib:RETURN 2
+2022-04-30 23:15:41,940358:TRACE:demo_fib.py,4:fib:RETURN 5
+2022-04-30 23:15:41,940395:TRACE:demo_fib.py,4:fib:RETURN 13

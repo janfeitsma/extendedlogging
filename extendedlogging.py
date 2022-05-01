@@ -37,7 +37,6 @@ autologging._generate_logger_name = lambda *args, **kwargs: MAIN_LOGGER_NAME
 
 # constants
 DEFAULT_LOG_FILE = '/tmp/extendedlogging.log'
-BASIC_FORMAT = "%(levelname)s:%(name)s:%(message)s"
 MAIN_LOGGER_NAME = ''
 DEFAULT_NEWLINE_FOLDING = True
 DEFAULT_TIMESTAMP_RESOLUTION = 6
@@ -76,7 +75,7 @@ class FileConfiguration():
     def __init__(self, **kwargs):
         self.enabled = True
         self.filename = DEFAULT_LOG_FILE
-        self.format = '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(name)s.%(funcName)s:%(message)s'
+        self.format = '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(funcName)s:%(message)s'
         self.timestamp_resolution = DEFAULT_TIMESTAMP_RESOLUTION
         self.level = autologging.TRACE
         self.fold_newlines = DEFAULT_NEWLINE_FOLDING

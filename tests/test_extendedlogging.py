@@ -40,8 +40,8 @@ WARNING:test_logging_info_default:almost done
         # verify
         t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{' + str(check_digits) + '}' # timestamp with millisecond or microsecond resolution
         empty = '{}'
-        expected_content = f"""{t}:TRACE:test_extendedlogging.py,\d+:root.f:CALL \*\(\) \*\*{empty}
-{t}:TRACE:test_extendedlogging.py,\d+:root.f:RETURN None
+        expected_content = f"""{t}:TRACE:test_extendedlogging.py,\d+:f:CALL \*\(\) \*\*{empty}
+{t}:TRACE:test_extendedlogging.py,\d+:f:RETURN None
 """
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
