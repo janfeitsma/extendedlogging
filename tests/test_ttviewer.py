@@ -74,6 +74,12 @@ Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using tool
         browser = webdriver.Firefox(options=options)
         browser.get('file://' + htmlfile)
         sleep(1)
+        el = browser.find_element_by_xpath("//body")
+        action = webdriver.common.action_chains.ActionChains(browser)
+        action.move_to_element_with_offset(el, 730, 116)
+        action.click()
+        action.perform()
+        sleep(0.1)
         actual_png = '/tmp/ttviewer/ttviewer.png'
         expected_png = os.path.join(BASEDIR, 'tests', 'demo_fib.png')
         browser.get_screenshot_as_file(actual_png)
