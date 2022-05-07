@@ -14,6 +14,9 @@ MAGIC_MICROSECOND_TIMESTAMP_SCALING = 1e6
 # TODO: or just cut off and warn?
 STORE_LIMIT = 1e7
 
+# format of timestamp to display in detailed info pane of browser
+READABLE_TIMESTAMP_FORMAT = "%Y-%m-%d,%H:%M:%S.%f"
+
 
 
 class TracingJsonStore:
@@ -56,6 +59,7 @@ class TracingJsonStore:
         start_item = self.stack.pop()
         if item.name != start_item.name:
             raise Exception('item pop inconsistency: popped item is {}:{}, expected name is {}'.format(item.args['where'], item.name, start_item.name))
+        # write
         self.write_item(start_item)
         self.write_item(item)
 
@@ -77,16 +81,14 @@ class TracingJsonStore:
 
 
 class TracingItem:
-    def __init__(self, timestamp, itemtype, name, **kwargs):
+    def __init__(self, timestamp, itemtype, name, data, **kwargs):
         '''A TracingItem represents a json line.'''
         self.timestamp = timestamp # float
         self.name = name
         self.pid = None
         self.type = itemtype
-        # set placeholders for readable timestamps, to ensure they are shown first in detailed info pane
+        self.data = data
         self.args = {}
-        self.args["StartTime"] = None
-        self.args["EndTime"] = None
         for (k, v) in kwargs.items():
             self.args[k] = v
 
@@ -95,5 +97,11 @@ class TracingItem:
         t = self.timestamp
         ts = int(MAGIC_MICROSECOND_TIMESTAMP_SCALING * self.timestamp)
         d = {'name': self.name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'args': self.args}
+        if self.type == 'B':
+            d['args']['starttime'] = datetime.datetime.fromtimestamp(t).strftime(READABLE_TIMESTAMP_FORMAT)
+            d['args']['inputs'] = self.data
+        if self.type == 'E':
+            d['args']['endtime'] = datetime.datetime.fromtimestamp(t).strftime(READABLE_TIMESTAMP_FORMAT)
+            d['args']['outputs'] = self.data
         return d
 

@@ -44,10 +44,10 @@ class LoggingParser():
             raise Exception('parse error on line: ' + line)
         if len(match.groups()) == 5:
             return # TODO: do something with events
-        ts, where, funcname, io = match.groups()
+        ts, where, funcname, data = match.groups()
         timestamp = self.parse_timestamp(ts)
-        kwargs = {'where': where, 'io': io}
-        result = ttstore.TracingItem(timestamp, itemtype, funcname, **kwargs)
+        kwargs = {'where': where}
+        result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
         return result
 
     def parse_timestamp(self, ts):
