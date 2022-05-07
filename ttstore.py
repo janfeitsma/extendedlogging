@@ -81,6 +81,7 @@ class TracingItem:
         '''A TracingItem represents a json line.'''
         self.timestamp = timestamp # float
         self.name = name
+        self.pid = None
         self.type = itemtype
         # set placeholders for readable timestamps, to ensure they are shown first in detailed info pane
         self.args = {}
@@ -93,6 +94,6 @@ class TracingItem:
         '''Return dict for json conversion.'''
         t = self.timestamp
         ts = int(MAGIC_MICROSECOND_TIMESTAMP_SCALING * self.timestamp)
-        d = {'name': self.name, 'ts': ts, 'ph': self.type, 'args': self.args}
+        d = {'name': self.name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'args': self.args}
         return d
 
