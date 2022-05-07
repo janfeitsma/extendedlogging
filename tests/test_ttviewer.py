@@ -55,15 +55,24 @@ Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using tool
         self.assertMultiLineRegexMatch(expected_output, actual_output)
 
     def test_json_html_render(self):
-        '''Operate on a sample json file and render webpage using selenium.'''
+        '''Operate on a sample json file and render webpage using selenium, including a click on the detailed info pane.'''
+        self._test_json_html_render('demo_fib2.png')
+
+    def test_json_html_render_with_io(self):
+        '''Operate on a sample json file and render webpage using selenium, with extra input/output labels.'''
+        self._test_json_html_render('demo_fib.png', '--io')
+
+    def _test_json_html_render(self, expected_pngfile, *args):
         htmlfile = os.path.join(TMPDIR, 'ttviewer.html')
         # pre-clean
         if os.path.isfile(htmlfile):
             os.remove(htmlfile)
         # create html
         logfile = os.path.join(BASEDIR, 'tests', 'demo_fib.log')
-        args = ['-n', logfile]
-        self._run_cmd(TTVIEWER, *args)
+        cmd_args = ['-n', logfile]
+        if len(args):
+            cmd_args += args
+        self._run_cmd(TTVIEWER, *cmd_args)
         # render html, convert to png
         from selenium import webdriver
         from time import sleep
@@ -81,7 +90,7 @@ Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using tool
         action.perform()
         sleep(0.1)
         actual_png = '/tmp/ttviewer/ttviewer.png'
-        expected_png = os.path.join(BASEDIR, 'tests', 'demo_fib.png')
+        expected_png = os.path.join(BASEDIR, 'tests', expected_pngfile)
         browser.get_screenshot_as_file(actual_png)
         browser.quit()
         # compare png hashes

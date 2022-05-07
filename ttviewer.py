@@ -121,6 +121,7 @@ def parse_args():
     parser.add_argument('-t', '--tmpdir', default=DEFAULT_TMPDIR, help='temporary folder to use')
     parser.add_argument('-n', '--noviewer', action='store_true', help='do not launch browser, stop after creating HTML')
     parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
+    parser.add_argument('--io', action='store_true', help='render with input->output labels')
     parser.add_argument('-q', '--quiet', action='store_true', help='suppress progress messages')
     # TODO: intermediate size limits/checks? to prevent system locking up in swap
     parser.add_argument('filename', help='input file')
@@ -129,7 +130,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_viewer(filename, tmpdir=DEFAULT_TMPDIR, browser=DEFAULT_BROWSER, noviewer=False, quiet=False):
+def run_viewer(filename, tmpdir=DEFAULT_TMPDIR, browser=DEFAULT_BROWSER, io=False, noviewer=False, quiet=False):
+    # configure
+    ttconvert.ttstore.INCLUDE_IO_IN_NAME = io
     # execute
     s = TraceViewer(filename, browser=browser, tmpdir=tmpdir, view=not noviewer, verbose=not quiet)
     s.run()

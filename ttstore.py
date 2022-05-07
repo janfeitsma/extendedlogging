@@ -17,6 +17,10 @@ STORE_LIMIT = 1e7
 # format of timestamp to display in detailed info pane of browser
 READABLE_TIMESTAMP_FORMAT = "%Y-%m-%d,%H:%M:%S.%f"
 
+# module option to include i/o in name
+INCLUDE_IO_IN_NAME = False
+CUTOFF_IO_IN_NAME = 10
+
 
 
 class TracingJsonStore:
@@ -59,6 +63,8 @@ class TracingJsonStore:
         start_item = self.stack.pop()
         if item.name != start_item.name:
             raise Exception('item pop inconsistency: popped item is {}:{}, expected name is {}'.format(item.args['where'], item.name, start_item.name))
+        # set a reference so the rendered label ('name') can be adapted
+        start_item.end = item
         # write
         self.write_item(start_item)
         self.write_item(item)
@@ -96,8 +102,26 @@ class TracingItem:
         '''Return dict for json conversion.'''
         t = self.timestamp
         ts = int(MAGIC_MICROSECOND_TIMESTAMP_SCALING * self.timestamp)
-        d = {'name': self.name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'args': self.args}
+        name = self.name
+        d = {'name': name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'args': self.args}
         if self.type == 'B':
+            if INCLUDE_IO_IN_NAME:
+                end_item = self.end
+                def pretty(s):
+                    # tracing input data is always logged in the following form: *(...) **{...}
+                    # this is because the autologging wrapper cannot conform to some fixed function signature
+                    # reverse-parsing seems too complex/costly/messy, so let's just remove some characters and hope the result is readable
+                    # TODO: this should not be handled here, instead, in ttparse
+                    for c in '*(){},':
+                        s = s.replace(c, '')
+                    return s
+                def cutoff(s):
+                    if len(s) > CUTOFF_IO_IN_NAME:
+                        return s[:CUTOFF_IO_IN_NAME] + '...'
+                    return s
+                name += ' ' + cutoff(pretty(self.data)) # inputs
+                name += ' -> ' + cutoff(self.end.data) # to outputs
+                d['name'] = name
             d['args']['starttime'] = datetime.datetime.fromtimestamp(t).strftime(READABLE_TIMESTAMP_FORMAT)
             d['args']['inputs'] = self.data
         if self.type == 'E':
