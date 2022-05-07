@@ -56,23 +56,36 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
 
     def test_json_html_render(self):
         '''Operate on a sample json file and render webpage using selenium, including a click on the detailed info pane.'''
-        self._test_json_html_render('demo_fib2.png')
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_fib.log')
+        self._run_cmd(TTVIEWER, '-n', logfile)
+        self._test_json_html_render('demo_fib2.png', click=(730,116))
 
     def test_json_html_render_with_io(self):
         '''Operate on a sample json file and render webpage using selenium, with extra input/output labels.'''
-        self._test_json_html_render('demo_fib.png', '--io')
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_fib.log')
+        self._run_cmd(TTVIEWER, '-n', logfile, '--io')
+        self._test_json_html_render('demo_fib.png', click=(730,116))
 
-    def _test_json_html_render(self, expected_pngfile, *args):
+    def test_catapult_render(self):
+        '''Use the demo data from catapult, well hidden in their website.'''
+        # download the data file if not yet present in tests (file is a bit large to store in git)
+        # https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer/
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_catapult.json')
+        if not os.path.isfile(logfile):
+            self._run_cmd('wget', '-q', '-O', logfile, 'https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer/nytimes_scroll_trace')
+        self._run_cmd(TTVIEWER, '-n', logfile)
+        self._test_json_html_render('demo_catapult.png', sleeptime=5)
+
+    # helper functions below
+
+    def setUp(self):
         htmlfile = os.path.join(TMPDIR, 'ttviewer.html')
         # pre-clean
         if os.path.isfile(htmlfile):
             os.remove(htmlfile)
-        # create html
-        logfile = os.path.join(BASEDIR, 'tests', 'demo_fib.log')
-        cmd_args = ['-n', logfile]
-        if len(args):
-            cmd_args += args
-        self._run_cmd(TTVIEWER, *cmd_args)
+
+    def _test_json_html_render(self, expected_pngfile, sleeptime=1, click=None):
+        htmlfile = os.path.join(TMPDIR, 'ttviewer.html')
         # render html, convert to png
         from selenium import webdriver
         from time import sleep
@@ -82,13 +95,14 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
         options.add_argument('--height=862') # TODO: why is resulting height only 777 pixels?!
         browser = webdriver.Firefox(options=options)
         browser.get('file://' + htmlfile)
-        sleep(1)
-        el = browser.find_element_by_xpath("//body")
-        action = webdriver.common.action_chains.ActionChains(browser)
-        action.move_to_element_with_offset(el, 730, 116)
-        action.click()
-        action.perform()
-        sleep(0.1)
+        sleep(sleeptime) # nasty
+        if click:
+            el = browser.find_element_by_xpath("//body")
+            action = webdriver.common.action_chains.ActionChains(browser)
+            action.move_to_element_with_offset(el, *click)
+            action.click()
+            action.perform()
+            sleep(0.1)
         actual_png = '/tmp/ttviewer/ttviewer.png'
         expected_png = os.path.join(BASEDIR, 'tests', expected_pngfile)
         browser.get_screenshot_as_file(actual_png)
@@ -97,8 +111,6 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
         expected_md5 = self._run_cmd('md5sum', expected_png).split()[0]
         actual_md5 = self._run_cmd('md5sum', actual_png).split()[0]
         self.assertEqual(expected_md5, actual_md5)
-
-    # helper functions below
 
     def _run_cmd(self, command, *args):
         cmd = '{} {}'.format(command, ' '.join(args))
