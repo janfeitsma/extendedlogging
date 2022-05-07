@@ -79,7 +79,14 @@ class TraceViewer(object):
         # otherwise: convert to temporary tgtfile
         tgtfile = os.path.join(self.tmpdir, 'ttviewer' + tgt)
         srcfile = ensure_src() # may also trigger convert
-        self._message('Converting {} to {} using {} ...'.format(srcfile, tgtfile, os.path.basename(converter.tool)), newline=False)
+        def describe_converter(converter):
+            if hasattr(converter, 'tool'):
+                return 'tool: ' + os.path.basename(converter.tool)
+            if hasattr(converter, 'parser'):
+                return 'parser: ' + type(converter.parser).__name__
+            # just show function name
+            return converter.__name__
+        self._message('Converting {} to {} using {} ...'.format(srcfile, tgtfile, describe_converter(converter)), newline=False)
         t_start = time.time()
         n = converter(srcfile, tgtfile)
         elapsed = time.time() - t_start

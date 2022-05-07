@@ -11,7 +11,8 @@ import shutil
 import subprocess
 
 # own imports
-#import ttstore
+import ttstore
+import ttparse
 
 
 
@@ -20,10 +21,6 @@ import subprocess
 # user could patch it via symlink, for example:
 #    ln -s /pathto/catapult_py3/tracing/bin/trace2html
 CATAPULT_TRACE_JSON2HTML = 'trace2html'
-
-# for now: use an old external toolset
-# TODO: migrate into here, call directly instead of via subprocess
-TRACE2JSON = 'tracelog2json'
 
 
 
@@ -41,14 +38,23 @@ def _find_utility(utility):
 
 
 def log2json(tracefilename, tmpjsonfilename):
-    cmd = 'python {} -o {} {}'.format(log2json.tool, tmpjsonfilename, tracefilename)
-    subprocess.check_output(cmd, shell=True) # capture and ignore output
-    return len(open(tmpjsonfilename).readlines())
-log2json.tool = _find_utility(TRACE2JSON)
+    return parse_and_create_json(tracefilename, tmpjsonfilename, log2json.parser)
+log2json.parser = ttparse.LoggingParser()
 
 
 def json2html(jsonfile, htmlfile):
     cmd = '{} {} --quiet --output={}'.format(json2html.tool, jsonfile, htmlfile)
     subprocess.run(cmd, shell=True, check=True)
 json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
+
+
+def parse_and_create_json(inputfilename, outputfilename, parser):
+    s = ttstore.TracingJsonStore(outputfilename)
+    with open(inputfilename, 'r') as f:
+        for line in f:
+            r = parser(line)
+            # r is None, for a to-be-ignored line
+            if r:
+                s.add(r)
+    return s.size
 
