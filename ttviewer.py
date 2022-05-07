@@ -9,6 +9,7 @@ The browser (cli) needs a .html file, produced by catapult trace2html.
 All necessary conversions are done/attempted:
 If a trace .json file is given, then it is converted to .html using catapult trace2html.
 If one or more .log files are given, then they are parsed under the assumption the content is python (auto)logging, merged into .json.
+TODO: merge is not yet implemented.
 
 More converters to .json could be registered in ttconvert.
 '''
@@ -129,8 +130,20 @@ class TraceViewer(object):
 
 def parse_args():
     descriptionTxt = __doc__
-    exampleTxt = '''Example: TODO'''
-    parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=argparse.RawDescriptionHelpFormatter)
+    exampleTxt = '''Example: ttviewer.py tests/demo_fib.log --io
+Converting tests/demo_fib.log (5.1KB) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done (0.0s, 13.3KB, n=82)
+Converting /tmp/ttviewer/ttviewer.json (13.3KB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.5s, 4.0MB)
+Launching browser ... # see tests/demo_fib.png
+
+Example: ttviewer.py tests/demo_catapult.json
+Converting tests/demo_catapult.json (13.2MB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.9s, 8.3MB)
+Launching browser ... # see tests/demo_catapult.png
+'''
+    class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+        def __init__(self, prog):
+            argparse.ArgumentDefaultsHelpFormatter.__init__(self, prog, max_help_position=36)
+            argparse.RawDescriptionHelpFormatter.__init__(self, prog, max_help_position=36)
+    parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
     parser.add_argument('-t', '--tmpdir', default=DEFAULT_TMPDIR, help='temporary folder to use')
     parser.add_argument('-n', '--noviewer', action='store_true', help='do not launch browser, stop after creating HTML')
     parser.add_argument('-L', '--limit', type=float, default=DEFAULT_INPUT_LIMIT_MB, help='input file size limit in MB')
