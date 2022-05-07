@@ -93,7 +93,8 @@ class TracingItem:
         self.name = name
         self.pid = None
         self.type = itemtype
-        self.data = data
+        self.data = data # string, raw (for detail pane)
+        self.sdata = data # string, pretty (for io labeling)
         self.args = {}
         for (k, v) in kwargs.items():
             self.args[k] = v
@@ -107,20 +108,12 @@ class TracingItem:
         if self.type == 'B':
             if INCLUDE_IO_IN_NAME:
                 end_item = self.end
-                def pretty(s):
-                    # tracing input data is always logged in the following form: *(...) **{...}
-                    # this is because the autologging wrapper cannot conform to some fixed function signature
-                    # reverse-parsing seems too complex/costly/messy, so let's just remove some characters and hope the result is readable
-                    # TODO: this should not be handled here, instead, in ttparse
-                    for c in '*(){},':
-                        s = s.replace(c, '')
-                    return s
                 def cutoff(s):
                     if len(s) > CUTOFF_IO_IN_NAME:
                         return s[:CUTOFF_IO_IN_NAME] + '...'
                     return s
-                name += ' ' + cutoff(pretty(self.data)) # inputs
-                name += ' -> ' + cutoff(self.end.data) # to outputs
+                name += ' ' + cutoff(self.sdata) # inputs
+                name += '-> ' + cutoff(self.end.sdata) # to outputs
                 d['name'] = name
             d['args']['starttime'] = datetime.datetime.fromtimestamp(t).strftime(READABLE_TIMESTAMP_FORMAT)
             d['args']['inputs'] = self.data

@@ -48,6 +48,15 @@ class LoggingParser():
         timestamp = self.parse_timestamp(ts)
         kwargs = {'where': where}
         result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
+        # do some extra work in case the io labeling option is set
+        if itemtype == 'B' and ttstore.INCLUDE_IO_IN_NAME:
+            s = data
+            # tracing input data is always logged in the following form: *(...) **{...}
+            # this is because the autologging wrapper cannot conform to some fixed function signature
+            # reverse-parsing seems too complex/costly/messy, so let's just remove some characters and hope the result is readable
+            for c in '*(){},':
+                s = s.replace(c, '')
+            result.sdata = s
         return result
 
     def parse_timestamp(self, ts):
