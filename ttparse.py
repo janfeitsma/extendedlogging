@@ -26,13 +26,15 @@ class LoggingParser():
             'CALL': (re.compile("(.+):TRACE:(.*):(.*):CALL (.+)"), 'B'),
             'RETURN': (re.compile("(.+):TRACE:(.*):(.*):RETURN (.+)"), 'E')
         }
+        self.config_fallback = (re.compile("(.+):(.*):(.*):(.*):(.+)"), 'X')
 
     def _select(self, line):
         '''Peek into line, figure out which regex to apply.'''
         for (k,v) in self.config.items():
             if k in line:
                 return v
-        raise Exception('_select failed on line: ' + line)
+        return self.config_fallback
+        #raise Exception('_select failed on line: ' + line)
 
     def __call__(self, line):
         '''Parse given line and return TracingItem object.'''
@@ -40,6 +42,8 @@ class LoggingParser():
         match = regex.search(line)
         if not match:
             raise Exception('parse error on line: ' + line)
+        if len(match.groups()) == 5:
+            return # TODO: do something with events
         ts, where, funcname, io = match.groups()
         timestamp = self.parse_timestamp(ts)
         kwargs = {'where': where, 'io': io}
