@@ -11,6 +11,8 @@ Some extra features:
 
 # Demo
 
+## Tracing
+
 Given the following code:
 ```rb
 # demo.py
@@ -61,10 +63,17 @@ With the given code, the tracing to file looks something like:
 
 For more demo's, see the code snippets in the test suite.
 
+## Viewer
+
+A Trace-and-Timing viewer `ttviewer` is also included, which can visualize log files.
+Consider the fibonacci demo program `demo_fib.py`. 
+
+![fibonacci tracing viewer demo](tests/demo_fib.png)
+
 # Testing, dependencies
 
 * to install dependencies, run: 
   * `pip install -r REQUIREMENTS.pip`
 * to run all tests locally, run: `python tests/test_extendedlogging.py`
-
+* the `ttviewer` tooling requires `catapult` and a browser (default `google-chrome`, also `firefox` seems to work)
 
