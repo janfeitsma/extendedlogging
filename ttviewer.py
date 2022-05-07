@@ -31,18 +31,24 @@ DEFAULT_BROWSER = 'google-chrome'
 
 # other defaults
 DEFAULT_TMPDIR = '/tmp/ttviewer'
+DEFAULT_INPUT_LIMIT_MB = 100.0
 
 
 
 class TraceViewer(object):
     '''View given file in browser. Perform necessary conversions.'''
 
-    def __init__(self, filename, browser=DEFAULT_BROWSER, tmpdir=DEFAULT_TMPDIR, view=True, verbose=True):
+    def __init__(self, filename, view=True, verbose=True):
         self.filename = filename
-        self.browser = browser
-        self.tmpdir = tmpdir
+        self.browser = DEFAULT_BROWSER
+        self.tmpdir = DEFAULT_TMPDIR
         self.view = view
         self.verbose = verbose
+        self.limit = DEFAULT_INPUT_LIMIT_MB
+        # check input size once (not on intermediates)
+        srcfile = filename
+        if os.path.getsize(srcfile) / 1024.0**2 > self.limit:
+            raise Exception('input file size ({}) of {} exceeds limit of {:.1f}MB'.format(srcfile, self._filesize(srcfile), self.limit))
 
     def run(self):
         '''Run the viewer: generate html and launch a browser.'''
@@ -60,9 +66,15 @@ class TraceViewer(object):
         sys.stdout.flush()
 
     @staticmethod
-    def _filesize(filename):  
-        size_mb = os.path.getsize(filename) / 1024.0 / 1024.0
-        return '{:.1f}MB'.format(size_mb)
+    def _filesize(filename):
+        numbytes = os.path.getsize(filename)
+        if os.path.getsize(filename) < 1000:
+            return '{:d}B'.format(numbytes)
+        elif os.path.getsize(filename) < 1e6:
+            return '{:.1f}KB'.format(numbytes / 1024.0)
+        elif os.path.getsize(filename) < 1e9:
+            return '{:.1f}MB'.format(numbytes / 1024.0**2)
+        return '{:.1f}GB'.format(numbytes / 1024.0**3)
 
     def _ensure_tmpdir(self):
         if not os.path.isdir(self.tmpdir):
@@ -79,6 +91,7 @@ class TraceViewer(object):
         # otherwise: convert to temporary tgtfile
         tgtfile = os.path.join(self.tmpdir, 'ttviewer' + tgt)
         srcfile = ensure_src() # may also trigger convert
+        # message
         def describe_converter(converter):
             if hasattr(converter, 'tool'):
                 return 'tool: ' + os.path.basename(converter.tool)
@@ -86,7 +99,7 @@ class TraceViewer(object):
                 return 'parser: ' + type(converter.parser).__name__
             # just show function name
             return converter.__name__
-        self._message('Converting {} to {} using {} ...'.format(srcfile, tgtfile, describe_converter(converter)), newline=False)
+        self._message('Converting {} ({}) to {} using {} ...'.format(srcfile, self._filesize(srcfile), tgtfile, describe_converter(converter)), newline=False)
         t_start = time.time()
         n = converter(srcfile, tgtfile)
         elapsed = time.time() - t_start
@@ -120,21 +133,24 @@ def parse_args():
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-t', '--tmpdir', default=DEFAULT_TMPDIR, help='temporary folder to use')
     parser.add_argument('-n', '--noviewer', action='store_true', help='do not launch browser, stop after creating HTML')
+    parser.add_argument('-L', '--limit', type=float, default=DEFAULT_INPUT_LIMIT_MB, help='input file size limit in MB')
     parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
     parser.add_argument('--io', action='store_true', help='render with input->output labels')
     parser.add_argument('-q', '--quiet', action='store_true', help='suppress progress messages')
-    # TODO: intermediate size limits/checks? to prevent system locking up in swap
     parser.add_argument('filename', help='input file')
     # TODO: allow and merge multiple .json / .log files
     #parser.add_argument('filenames', help='input file(s)', nargs='+', metavar='filename')
     return parser.parse_args()
 
 
-def run_viewer(filename, tmpdir=DEFAULT_TMPDIR, browser=DEFAULT_BROWSER, io=False, noviewer=False, quiet=False):
+def run_viewer(filename, tmpdir=DEFAULT_TMPDIR, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False):
     # configure
     ttconvert.ttstore.INCLUDE_IO_IN_NAME = io
+    s = TraceViewer(filename, view=not noviewer, verbose=not quiet)
+    s.browser = browser
+    s.tmpdir = tmpdir
+    s.limit = limit
     # execute
-    s = TraceViewer(filename, browser=browser, tmpdir=tmpdir, view=not noviewer, verbose=not quiet)
     s.run()
 
 

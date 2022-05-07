@@ -11,5 +11,9 @@ def fib(n):
 extendedlogging.configure(tracing=True)
 
 # run some code to produce logging events
-fib(7)
+import sys
+n = 7
+if len(sys.argv) > 1:
+    n = int(sys.argv[1])
+print(fib(n))
 

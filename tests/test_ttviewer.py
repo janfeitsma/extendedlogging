@@ -47,8 +47,8 @@ class TestTTViewer(testcase.TestCase):
             args.append('-q')
         actual_output = self._run_cmd(TTVIEWER, *args)
         # checks
-        expected_output = """Converting /tmp/extendedlogging.log to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done \(...s, 0.0MB, n=6\)
-Converting /tmp/ttviewer/ttviewer.json to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done \(...s, 4.0MB\)"""
+        expected_output = """Converting /tmp/extendedlogging.log \(.*B\) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done \(.*B, n=6\)
+Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done \(...s, 4.0MB\)"""
         if quiet:
             expected_output = ''
         self.assertTrue(os.path.isfile(htmlfile))
