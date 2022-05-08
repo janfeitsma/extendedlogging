@@ -1,60 +1,33 @@
-#!/usr/bin/env python
+# automatic import of all content in current folder
+# merging https://github.com/samwyse/sspp and https://stackoverflow.com/a/43059528
 
-# converters for ttviewer
+from glob import glob
+from keyword import iskeyword
+from os.path import dirname, join, split, splitext
+import logging
+import traceback
+import importlib
+logging.basicConfig()
 
-__author__ = 'Jan Feitsma'
+basedir = dirname(__file__)
 
-
-# system imports
-import os
-import shutil
-import subprocess
-
-# own imports
-import ttstore
-import ttparse
-
-
-
-# unfortunately Google catapult suite is not available via pip?
-# https://chromium.googlesource.com/catapult/+/HEAD/tracing/README.md
-# user could patch it via symlink, for example:
-#    ln -s /pathto/catapult_py3/tracing/bin/trace2html
-CATAPULT_TRACE_JSON2HTML = 'trace2html'
-
-
-
-def _find_utility(utility):
-    # check if available already
-    w = shutil.which(utility)
-    if not w is None:
-        return w
-    # if not, then check current folder
-    basedir = os.path.dirname(os.path.realpath(__file__))
-    w = os.path.join(basedir, utility)
-    if os.path.isfile(w):
-        return w
-    raise FileNotFoundError('could not find utility ' + utility)
-
-
-def log2json(tracefilename, tmpjsonfilename):
-    return parse_and_create_json(tracefilename, tmpjsonfilename, log2json.parser)
-log2json.parser = ttparse.LoggingParser()
-
-
-def json2html(jsonfile, htmlfile):
-    cmd = '{} {} --quiet --output={}'.format(json2html.tool, jsonfile, htmlfile)
-    subprocess.run(cmd, shell=True, check=True)
-json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
-
-
-def parse_and_create_json(inputfilename, outputfilename, parser):
-    s = ttstore.TracingJsonStore(outputfilename)
-    with open(inputfilename, 'r') as f:
-        for line in f:
-            r = parser(line)
-            # r is None, for a to-be-ignored line
-            if r:
-                s.add(r)
-    return s.size
+for name in glob(join(basedir, '*.py')):
+    module = splitext(split(name)[-1])[0]
+    if not module.startswith('_') and not iskeyword(module):
+        try:
+            # get a handle on the module
+            mdl = importlib.import_module(__name__+'.'+module)
+            # is there an __all__?  if so respect it
+            if "__all__" in mdl.__dict__:
+                names = mdl.__dict__["__all__"]
+            else:
+                # otherwise we import all names that don't begin with _
+                names = [x for x in mdl.__dict__ if not x.startswith("_")]
+            # now drag them in
+            globals().update({k: getattr(mdl, k) for k in names})
+        except:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning('Ignoring exception while loading the %r plug-in:', module)
+            print(traceback.format_exc())
 
