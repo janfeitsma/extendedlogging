@@ -12,7 +12,7 @@ import json
 MAGIC_MICROSECOND_TIMESTAMP_SCALING = 1e6
 
 # throw an error if the amount of data is getting large
-# TODO: or just cut off and warn?
+# (alternative could be to just cut off and warn?)
 STORE_LIMIT = 1e7
 
 # format of timestamp to display in detailed info pane of browser
