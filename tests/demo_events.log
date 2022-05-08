@@ -1,0 +1,9 @@
+2022-05-08 10:27:12,727408:TRACE:demo.py,6:__init__:CALL *('some_argument',) **{}
+2022-05-08 10:27:12,727512:TRACE:demo.py,9:f:CALL *() **{}
+2022-05-08 10:27:12,727564:INFO:demo.py,10:f:hi!
+2022-05-08 10:27:12,727655:TRACE:demo.py,9:f:RETURN None
+2022-05-08 10:27:12,727710:DEBUG:demo.py,8:__init__:__init__ done
+2022-05-08 10:27:12,727738:TRACE:demo.py,6:__init__:RETURN None
+2022-05-08 10:27:12,727767:TRACE:demo.py,12:g:CALL *() **{}
+2022-05-08 10:27:12,727793:TRACE:demo.py,12:g:RETURN 3
+2022-05-08 10:27:12,727838:WARNING:demo.py,21:<module>:done

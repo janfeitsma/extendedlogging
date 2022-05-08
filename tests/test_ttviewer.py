@@ -47,7 +47,7 @@ class TestTTViewer(testcase.TestCase):
             args.append('-q')
         actual_output = self._run_cmd(TTVIEWER, *args)
         # checks
-        expected_output = """Converting /tmp/extendedlogging.log \(.*B\) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done \(.*B, n=6\)
+        expected_output = """Converting /tmp/extendedlogging.log \(.*B\) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done \(.*B, n=9\)
 Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done \(...s, 4.0MB\)"""
         if quiet:
             expected_output = ''
@@ -75,6 +75,12 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
             self._run_cmd('wget', '-q', '-O', logfile, 'https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/using-frameviewer/nytimes_scroll_trace')
         self._run_cmd(TTVIEWER, '-n', logfile)
         self._test_json_html_render('demo_catapult.png', sleeptime=5)
+
+    def test_events_html_render(self):
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_events.log')
+        self._run_cmd(TTVIEWER, '-n', logfile)
+        self._test_json_html_render('demo_events.png')
+
 
     # helper functions below
 

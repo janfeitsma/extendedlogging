@@ -23,10 +23,10 @@ class LoggingParser():
         # if levelname is TRACE, then message either starts with CALL or RETURN - these lines come in pairs
         # otherwise it is an single-line event (INFO, DEBUG etc.)
         self.config = {
-            'CALL': (re.compile("(.+):TRACE:(.*):(.*):CALL (.+)"), 'B'),
-            'RETURN': (re.compile("(.+):TRACE:(.*):(.*):RETURN (.+)"), 'E')
+            'CALL': (re.compile("(.+):TRACE:(.*):(.*):CALL (.+)"), 'B', self._handle_trace),
+            'RETURN': (re.compile("(.+):TRACE:(.*):(.*):RETURN (.+)"), 'E', self._handle_trace)
         }
-        self.config_fallback = (re.compile("(.+):(.*):(.*):(.*):(.+)"), 'X')
+        self.config_fallback = (re.compile("(.+):(.*):(.*):(.*):(.+)"), 'i', self._handle_event)
 
     def _select(self, line):
         '''Peek into line, figure out which regex to apply.'''
@@ -38,13 +38,14 @@ class LoggingParser():
 
     def __call__(self, line):
         '''Parse given line and return TracingItem object.'''
-        regex, itemtype = self._select(line)
+        regex, itemtype, handle = self._select(line)
         match = regex.search(line)
         if not match:
             raise Exception('parse error on line: ' + line)
-        if len(match.groups()) == 5:
-            return # TODO: do something with events
-        ts, where, funcname, data = match.groups()
+        return handle(itemtype, match.groups())
+
+    def _handle_trace(self, itemtype, regexmatch):
+        ts, where, funcname, data = regexmatch
         timestamp = self.parse_timestamp(ts)
         kwargs = {'where': where}
         result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
@@ -57,6 +58,14 @@ class LoggingParser():
             for c in '*(){},':
                 s = s.replace(c, '')
             result.sdata = s
+        return result
+
+    def _handle_event(self, itemtype, regexmatch):
+        ts, eventlevel, where, funcname, data = regexmatch
+        timestamp = self.parse_timestamp(ts)
+        # from documentation: The s property specifies the scope of the event. There are four scopes available global (g), process (p) and thread (t)
+        kwargs = {'where': where, 'level': eventlevel, 'funcname': funcname, 'snapshot': None}
+        result = ttstore.TracingItem(timestamp, itemtype, 'EVENT', data, **kwargs)
         return result
 
     def parse_timestamp(self, ts):

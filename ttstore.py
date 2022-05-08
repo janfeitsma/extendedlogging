@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 # datastore for ttviewer
-
+# documentation: https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview#
+# (retrieved via: https://github.com/catapult-project/catapult/blob/main/tracing/README.md)
 
 import datetime
 import json
@@ -29,7 +30,6 @@ class TracingJsonStore:
     Start- and end items form a duration; they come in pairs.
 
     Items must arrive in order, i.e. increasing timestamp and properly nested."""
-    # TODO: events? can write at the end?
     def __init__(self, outputfilename):
         self.items = []
         self.stack = []
@@ -53,8 +53,13 @@ class TracingJsonStore:
             self.handle_start_item(item)
         elif item.type == 'E':
             self.handle_end_item(item)
+        elif item.type == 'i':
+            self.handle_event_item(item)
         else:
             raise Exception('unrecognized trace item type: {}'.format(item.type))
+
+    def handle_event_item(self, item):
+        self.write_item(item)
 
     def handle_start_item(self, item):
         self.stack.append(item)
