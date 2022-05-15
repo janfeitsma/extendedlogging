@@ -47,8 +47,8 @@ class TestTTViewer(testcase.TestCase):
             args.append('-q')
         actual_output = self._run_cmd(TTVIEWER, *args)
         # checks
-        expected_output = """Converting /tmp/extendedlogging.log \(.*B\) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done \(.*B, n=9\)
-Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done \(...s, 4.0MB\)"""
+        expected_output = """Converting /tmp/extendedlogging.log \(.*B\) to /tmp/ttviewer/extendedlogging.log.json using parser: LoggingParser ... done \(.*B, n=9\)
+Converting /tmp/ttviewer/extendedlogging.log.json \(.*B\) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done \(...s, 4.0MB\)"""
         if quiet:
             expected_output = ''
         self.assertTrue(os.path.isfile(htmlfile))
@@ -77,6 +77,7 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
         self._test_json_html_render('demo_catapult.png', sleeptime=5)
 
     def test_events_html_render(self):
+        '''Try to render events ... hard to spot, need some trickery, or migrate to Perfetto?'''
         logfile = os.path.join(BASEDIR, 'tests', 'demo_events.log')
         self._run_cmd(TTVIEWER, '-n', logfile)
         self._test_json_html_render('demo_events.png')
@@ -116,7 +117,7 @@ Converting /tmp/ttviewer/ttviewer.json \(.*B\) to /tmp/ttviewer/ttviewer.html us
         # compare png hashes
         expected_md5 = self._run_cmd('md5sum', expected_png).split()[0]
         actual_md5 = self._run_cmd('md5sum', actual_png).split()[0]
-        self.assertEqual(expected_md5, actual_md5)
+        self.assertEqual(expected_md5, actual_md5, 'difference between actual and expected: {} {}'.format(actual_png, expected_png))
 
     def _run_cmd(self, command, *args):
         cmd = '{} {}'.format(command, ' '.join(args))
