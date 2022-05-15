@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# converters for ttviewer
+# standard converters for ttviewer
 
 __author__ = 'Jan Feitsma'
 
@@ -13,6 +13,7 @@ import subprocess
 # own imports
 import ttstore
 import ttparse
+import ttconvert.registry as registry
 
 
 
@@ -37,15 +38,15 @@ def _find_utility(utility):
     raise FileNotFoundError('could not find utility ' + utility)
 
 
-def log2json(tracefilename, tmpjsonfilename):
-    return parse_and_create_json(tracefilename, tmpjsonfilename, log2json.parser)
-log2json.parser = ttparse.LoggingParser()
+def _convert_log(tracefilename, tmpjsonfilename):
+    return parse_and_create_json(tracefilename, tmpjsonfilename, _convert_log.parser)
+_convert_log.parser = ttparse.LoggingParser()
 
 
-def json2html(jsonfile, htmlfile):
-    cmd = '{} {} --quiet --output={}'.format(json2html.tool, jsonfile, htmlfile)
+def _convert_json2html(jsonfile, htmlfile):
+    cmd = '{} {} --quiet --output={}'.format(_convert_json2html.tool, jsonfile, htmlfile)
     subprocess.run(cmd, shell=True, check=True)
-json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
+_convert_json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
 
 
 def parse_and_create_json(inputfilename, outputfilename, parser):
@@ -57,4 +58,8 @@ def parse_and_create_json(inputfilename, outputfilename, parser):
             if r:
                 s.add(r)
     return s.size
+
+
+registry.add_file(_convert_log, '*.log')
+registry.add_file(_convert_json2html, '*.json')
 
