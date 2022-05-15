@@ -122,7 +122,7 @@ class Runner():
         self.messager('{} {} .json files into {} ...'.format(begin_message, len(self.jsons), tgtfile, newline=self.dryrun))
         # stop in case of dryrun
         if self.dryrun:
-            return
+            return tgtfile
         # do the merge
         raise NotImplementedError('json merge')
 
@@ -142,7 +142,7 @@ class Runner():
         return '{:.1f}GB'.format(numbytes / 1024.0**3)
 
     def _get_file_handler(self, f):
-        bb = [fnmatch(f, fh.mask) for fh in self.registry.file_handlers]
+        bb = [fnmatch(os.path.basename(f), fh.mask) for fh in self.registry.file_handlers]
         if sum(bb) == 0:
             raise Exception('none of the registered file masks apply to {}\n{}'.format(f, self.registry))
         if sum(bb) > 1:

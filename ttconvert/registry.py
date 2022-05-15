@@ -5,6 +5,7 @@
 __author__ = 'Jan Feitsma'
 
 
+import os
 
 
 class FolderHandler():
