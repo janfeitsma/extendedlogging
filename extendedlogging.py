@@ -50,7 +50,7 @@ DEFAULT_ERROR_HANDLING = True # log ERROR in tracing upon exception
 
 def configure(**kwargs):
     c = MixedConfiguration(**kwargs)
-    c.apply()
+    return c.apply()
 configure.__doc__ = __doc__.format(**vars()) # trick to fill in the default values, although this might not be how __doc__ was intended
 
 
