@@ -208,7 +208,6 @@ TRACE:recurse: RETURN None
 TRACE:recurse: RETURN None
 ERROR:recurse: something went terribly wrong at n=3
 TRACE:recurse: RETURN ERROR
-ERROR:recurse: something went terribly wrong at n=3
 TRACE:recurse: RETURN ERROR
 """
         self._template_trace_error_handling(expected_content, error_handling=True)

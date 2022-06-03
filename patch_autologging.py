@@ -31,7 +31,10 @@ def patched_call(self, function, args, keywords):
     try:
         value = function(*args, **keywords)
     except Exception as e:
-        _handle(logging.ERROR, "%s", str(e))
+        # tag the exception, to prevent it being logged at each level in the stack
+        if not hasattr(e, 'logged') or not e.logged:
+            _handle(logging.ERROR, "%s", str(e))
+        e.logged = True
         _handle(autologging.TRACE, "RETURN ERROR", None)
         raise
 
