@@ -13,7 +13,8 @@ To enable/configure: just call configure(). It accepts the following options:
     fold_newlines          # tracing newline folding, default {DEFAULT_NEWLINE_FOLDING}
     string_size_limit      # tracing string size limit, default {DEFAULT_STRING_SIZE_LIMIT}
     array_size_limit       # tracing array size limit, default {DEFAULT_ARRAY_SIZE_LIMIT}
-    array_tail_truncation  # tracing array trunctation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
+    array_tail_truncation  # tracing array truncation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
+    error_handling         # tracing error handler, default {DEFAULT_ERROR_HANDLING}
     *_format               # logging format to use
     *_level                # logging level to use
 Where applicable (as marked with *_), the option prefix must be either 'file' or 'console'.
@@ -27,6 +28,7 @@ import inspect
 import logging
 import logging.config
 import autologging
+import patch_autologging
 
 # interface dealing
 from logging import *
@@ -43,12 +45,13 @@ DEFAULT_TIMESTAMP_RESOLUTION = 6
 DEFAULT_STRING_SIZE_LIMIT = 1000
 DEFAULT_ARRAY_SIZE_LIMIT = 10
 DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner
+DEFAULT_ERROR_HANDLING = True # log ERROR in tracing upon exception
 
 
 def configure(**kwargs):
     c = MixedConfiguration(**kwargs)
     c.apply()
-configure.__doc__ = __doc__.format(**vars()) # trick to fill in the default values, although this might not be really how __doc__ was intended
+configure.__doc__ = __doc__.format(**vars()) # trick to fill in the default values, although this might not be how __doc__ was intended
 
 
 def remove_all_handlers():
@@ -82,8 +85,15 @@ class FileConfiguration():
         self.string_size_limit = DEFAULT_STRING_SIZE_LIMIT
         self.array_size_limit = DEFAULT_ARRAY_SIZE_LIMIT
         self.array_tail_truncation = DEFAULT_ARRAY_TAIL_TRUNCATION
+        self.error_handling = DEFAULT_ERROR_HANDLING
         # set overruled options, if any
         self.__dict__.update(kwargs)
+
+    def apply(self):
+        patch_autologging.disable()
+        if self.error_handling:
+            # install the error handler in autologging
+            patch_autologging.enable()
 
     def get_formatter(self):
         # filter the arguments which are applicable
@@ -145,6 +155,8 @@ class MixedConfiguration():
         # configure logging
         self.config_dict = self.make_config_dict()
         logging.config.dictConfig(self.config_dict)
+        # optionally tweak autologging
+        self.file_config.apply()
         # bootstrap, connect the custom TraceFormatter
         if self.file_config.enabled:
             logging._handlers['tracehandler'].formatter = self.file_config.get_formatter()

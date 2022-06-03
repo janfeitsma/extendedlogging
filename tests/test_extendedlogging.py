@@ -187,6 +187,54 @@ TRACE:f: RETURN None
 """
         self._compare_logfile(expected_content)
 
+    def test_trace_error_handling_disabled(self):
+        '''Tracing can be incomplete when an exception occurs.'''
+        expected_content = """TRACE:recurse: CALL *(4,) **{}
+TRACE:recurse: CALL *(3,) **{}
+TRACE:recurse: CALL *(2,) **{}
+TRACE:recurse: CALL *(1,) **{}
+TRACE:recurse: RETURN None
+TRACE:recurse: RETURN None
+"""
+        self._template_trace_error_handling(expected_content, error_handling=False)
+
+    def test_trace_error_handling_enabled(self):
+        '''If so configured, exceptions shall be logged with ERROR events and tracing shall be closed.'''
+        expected_content = """TRACE:recurse: CALL *(4,) **{}
+TRACE:recurse: CALL *(3,) **{}
+TRACE:recurse: CALL *(2,) **{}
+TRACE:recurse: CALL *(1,) **{}
+TRACE:recurse: RETURN None
+TRACE:recurse: RETURN None
+ERROR:recurse: something went terribly wrong at n=3
+TRACE:recurse: RETURN ERROR
+ERROR:recurse: something went terribly wrong at n=3
+TRACE:recurse: RETURN ERROR
+"""
+        self._template_trace_error_handling(expected_content, error_handling=True)
+
+    def _template_trace_error_handling(self, expected_content, **kwargs):
+        # setup
+        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', **kwargs)
+        # run
+        class ExpectedException(Exception):
+            pass
+        @extendedlogging.traced
+        class myclass():
+            def recurse(self, n):
+                if n > 1:
+                    self.recurse(n-1)
+                if n == 3:
+                    raise ExpectedException('something went terribly wrong at n=' + str(n))
+        # run
+        c = myclass()
+        try:
+            c.recurse(4) # will raise expected exception
+        except ExpectedException as e:
+            pass
+        # verify
+        self._compare_logfile(expected_content)
+
     # helper functions below
 
     def setUp(self):

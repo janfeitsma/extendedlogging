@@ -8,6 +8,7 @@ Some extra features:
 * tracing lines are by default never split over multiple lines - newlines in strings are logged as '\n'
 * tracing timestamps are in microsecond resolution instead of milliseconds
 * tracing lines have a configurable maximum size
+* exceptions can be logged in trace file automatically as logging.ERROR
 
 # Demo
 

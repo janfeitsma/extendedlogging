@@ -1,6 +1,5 @@
 ## extendedlogging
 
-* when an exception occurs, produce ERROR event and close the tracing properly
 * also trace pid/tid, consistent with ttviewer
 * fix timezone handling, just log it (see fibonacci demo)
 
