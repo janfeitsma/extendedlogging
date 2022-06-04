@@ -55,7 +55,7 @@ class TracingJsonStore:
     def add(self, item):
         # check timestamp order integrity
         # TODO: what if timestamps are equal? with millisecond resolution this is not uncommon
-        assert item.timestamp > self.last_timestamp, 'timestamp out of order: got {}, last was {}'.format(item.timestamp, self.last_timestamp)
+        #assert item.timestamp > self.last_timestamp, 'timestamp out of order: got {}, last was {}'.format(item.timestamp, self.last_timestamp)
         self.last_timestamp = item.timestamp
         # handle item(s) and check stack integrity
         if item.type == 'B':
@@ -71,10 +71,12 @@ class TracingJsonStore:
         self.write_item(item)
 
     def handle_start_item(self, item):
-        self.stack[item.tid].append(item)
+        key = (item.pid, item.tid)
+        self.stack[key].append(item)
 
     def handle_end_item(self, item):
-        start_item = self.stack[item.tid].pop()
+        key = (item.pid, item.tid)
+        start_item = self.stack[key].pop()
         if item.name != start_item.name:
             thread_detail = ''
             if item.tid:
@@ -104,12 +106,12 @@ class TracingJsonStore:
 
 
 class TracingItem:
-    def __init__(self, timestamp, tid, itemtype, name, data, **kwargs):
+    def __init__(self, timestamp, itemtype, name, data, **kwargs):
         '''A TracingItem represents a json line.'''
         self.timestamp = timestamp # float
         self.name = name
         self.pid = None
-        self.tid = tid
+        self.tid = None
         self.type = itemtype
         self.data = data # string, raw (for detail pane)
         self.sdata = data # string, pretty (for io labeling)

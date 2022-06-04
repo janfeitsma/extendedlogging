@@ -245,7 +245,7 @@ TRACE:Thread-1:run: RETURN None
 TRACE:Thread-2:run: RETURN None
 """
         # setup
-        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', threading=True)
+        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', thread_names=True)
         numthreads = 2
         @extendedlogging.traced
         def run(name, duration):

@@ -35,13 +35,15 @@ class LoggingParser():
         field_to_regex['%(asctime)s'] = '([^A-Z]+)' # can have ':' separators
         field_to_type = {}
         field_to_type['%(asctime)s'] = 'timestamp'
+        field_to_type['%(processName)s'] = 'pid'
         field_to_type['%(threadName)s'] = 'tid'
         field_to_type['%(levelname)s'] = 'eventlevel'
         field_to_type['%(filename)s,%(lineno)d'] = 'where'
         field_to_type['%(funcName)s'] = 'funcname'
         field_to_type['%(message)s'] = 'data'
         format_fields = format_spec.split(FORMAT_SPEC_SEPARATOR)
-        self.threaded_data = '%(threadName)s' in format_fields
+        self.tid_in_log = '%(threadName)s' in format_fields
+        self.pid_in_log = '%(processName)s' in format_fields
         class FieldIndexMap(object):
             pass
         self.field_to_idx = FieldIndexMap()
@@ -83,16 +85,18 @@ class LoggingParser():
         return handle(itemtype, match.groups())
 
     def _handle_trace(self, itemtype, regexmatch):
-        tid = None
-        if self.threaded_data:
-            tid = regexmatch[self.field_to_idx.tid]
         ts = regexmatch[self.field_to_idx.timestamp]
         where = regexmatch[self.field_to_idx.where]
         funcname = regexmatch[self.field_to_idx.funcname]
         data = regexmatch[self.field_to_idx.data]
         timestamp = self.parse_timestamp(ts)
         kwargs = {'where': where}
-        result = ttstore.TracingItem(timestamp, tid, itemtype, funcname, data, **kwargs)
+        result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
+        # pid/tid
+        if self.pid_in_log:
+            result.pid = regexmatch[self.field_to_idx.pid]
+        if self.tid_in_log:
+            result.tid = regexmatch[self.field_to_idx.tid]
         # do some extra work in case the io labeling option is set
         if itemtype == 'B' and ttstore.INCLUDE_IO_IN_NAME:
             s = data
@@ -105,9 +109,6 @@ class LoggingParser():
         return result
 
     def _handle_event(self, itemtype, regexmatch):
-        tid = None
-        if self.threaded_data:
-            tid = regexmatch[self.field_to_idx.tid]
         ts = regexmatch[self.field_to_idx.timestamp]
         eventlevel = regexmatch[self.field_to_idx.eventlevel]
         where = regexmatch[self.field_to_idx.where]
@@ -116,7 +117,12 @@ class LoggingParser():
         timestamp = self.parse_timestamp(ts)
         # from documentation: The s property specifies the scope of the event. There are four scopes available global (g), process (p) and thread (t)
         kwargs = {'where': where, 'level': eventlevel, 'funcname': funcname, 'snapshot': None}
-        result = ttstore.TracingItem(timestamp, tid, itemtype, 'EVENT', data, **kwargs)
+        result = ttstore.TracingItem(timestamp, itemtype, 'EVENT', data, **kwargs)
+        # pid/tid
+        if self.pid_in_log:
+            result.pid = regexmatch[self.field_to_idx.pid]
+        if self.tid_in_log:
+            result.tid = regexmatch[self.field_to_idx.tid]
         return result
 
     def parse_timestamp(self, ts):

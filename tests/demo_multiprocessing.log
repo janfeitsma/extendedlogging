@@ -1,0 +1,21 @@
+# format: %(asctime)s:%(levelname)s:%(processName)s:%(threadName)s:%(filename)s,%(lineno)d:%(funcName)s:%(message)s
+2022-06-04 15:06:55,115422:TRACE:MainProcess:MainThread:demo_multiprocessing.py,31:main:CALL *() **{}
+2022-06-04 15:06:55,117121:TRACE:Process-1:MainThread:demo_multiprocessing.py,20:doit_process:CALL *() **{}
+2022-06-04 15:06:55,117487:TRACE:Process-1:Thread-1:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,117411:TRACE:Process-2:MainThread:demo_multiprocessing.py,20:doit_process:CALL *() **{}
+2022-06-04 15:06:55,117644:TRACE:Process-1:Thread-2:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,117808:TRACE:Process-2:Thread-1:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,117694:TRACE:Process-3:MainThread:demo_multiprocessing.py,20:doit_process:CALL *() **{}
+2022-06-04 15:06:55,118007:TRACE:Process-2:Thread-2:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,118107:TRACE:Process-3:Thread-1:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,118314:TRACE:Process-3:Thread-2:demo_multiprocessing.py,14:doit_thread:CALL *() **{}
+2022-06-04 15:06:55,217833:TRACE:Process-1:Thread-1:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,218129:TRACE:Process-2:Thread-1:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,218357:TRACE:Process-3:Thread-1:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,218932:TRACE:Process-1:Thread-2:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,219061:TRACE:Process-2:Thread-2:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,219043:TRACE:Process-3:Thread-2:demo_multiprocessing.py,14:doit_thread:RETURN None
+2022-06-04 15:06:55,219350:TRACE:Process-1:MainThread:demo_multiprocessing.py,20:doit_process:RETURN None
+2022-06-04 15:06:55,219531:TRACE:Process-2:MainThread:demo_multiprocessing.py,20:doit_process:RETURN None
+2022-06-04 15:06:55,219664:TRACE:Process-3:MainThread:demo_multiprocessing.py,20:doit_process:RETURN None
+2022-06-04 15:06:55,221831:TRACE:MainProcess:MainThread:demo_multiprocessing.py,31:main:RETURN None

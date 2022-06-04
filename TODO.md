@@ -1,6 +1,5 @@
 ## extendedlogging
 
-* also trace pid/tid, consistent with ttviewer
 * fix timezone handling, just log it (see fibonacci demo)
 
 ## ttviewer
@@ -10,7 +9,6 @@
 * ttfilter tool to select time range
 * improve instant event visualization (move away from legacy catapult to new Perfetto UI?)
 * file merge mode
-* pid/tid support
 * consider rewriting some parsers in C++ for speed
 * ttparse: bugfix CALL/RETURN mixup
 

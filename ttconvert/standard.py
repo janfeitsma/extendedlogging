@@ -59,10 +59,11 @@ def parse_and_create_json(inputfilename, outputfilename, parser):
     with open(inputfilename, 'r') as f:
         lc = 0
         for line in f:
+            line = line.strip()
             lc += 1
             # optionally configure parser
             if line.startswith(LOGFILE_FORMAT_SPEC):
-                parser.configure(line.replace(LOGFILE_FORMAT_SPEC, '').strip())
+                parser.configure(line.replace(LOGFILE_FORMAT_SPEC, ''))
                 continue
             # ignore line?
             if line.startswith(IGNORE_LINE_CHAR):

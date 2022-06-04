@@ -15,7 +15,8 @@ To enable/configure: just call configure(). It accepts the following options:
     array_size_limit       # tracing array size limit, default {DEFAULT_ARRAY_SIZE_LIMIT}
     array_tail_truncation  # tracing array truncation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
     error_handling         # tracing error handler, default {DEFAULT_ERROR_HANDLING}
-    threading              # tracing option to also log thread id/name on each line, default {DEFAULT_THREADING}
+    thread_names           # tracing option to also log thread id/name on each line, default {DEFAULT_LOG_THREAD_NAMES}
+    process_names          # tracing option to also log process name on each line, default {DEFAULT_LOG_PROCESS_NAMES}
     write_format_header    # tracing option to write a header line with the format used, default {DEFAULT_WRITE_FORMAT_HEADER}
     *_format               # logging format to use
     *_level                # logging level to use
@@ -48,8 +49,9 @@ DEFAULT_STRING_SIZE_LIMIT = 1000
 DEFAULT_ARRAY_SIZE_LIMIT = 10
 DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner, not tail
 DEFAULT_ERROR_HANDLING = True # log ERROR in tracing upon exception
-DEFAULT_THREADING = False
-# alternatively we could try to auto-detect threading, but that seems too complicated
+DEFAULT_LOG_PROCESS_NAMES = False
+DEFAULT_LOG_THREAD_NAMES = False
+# TODO: try to auto-detect multiprocessing/threading, although that seems too complicated and error prone
 DEFAULT_WRITE_FORMAT_HEADER = False
 
 
@@ -93,14 +95,17 @@ class FileConfiguration():
         self.array_size_limit = DEFAULT_ARRAY_SIZE_LIMIT
         self.array_tail_truncation = DEFAULT_ARRAY_TAIL_TRUNCATION
         self.error_handling = DEFAULT_ERROR_HANDLING
-        self.threading = DEFAULT_THREADING
+        self.process_names = DEFAULT_LOG_PROCESS_NAMES
+        self.thread_names = DEFAULT_LOG_THREAD_NAMES
         self.write_format_header = DEFAULT_WRITE_FORMAT_HEADER
         # set overruled options, if any
         self.__dict__.update(kwargs)
 
     def apply(self):
-        if self.threading and not 'threadName' in self.format:
+        if self.thread_names and not 'threadName' in self.format:
             self.format = self.format.replace('%(levelname)s', '%(levelname)s:%(threadName)s')
+        if self.process_names and not 'processName' in self.format:
+            self.format = self.format.replace('%(levelname)s', '%(levelname)s:%(processName)s')
         patch_autologging.disable()
         if self.error_handling:
             # install the error handler in autologging
@@ -172,7 +177,7 @@ class MixedConfiguration():
         if self.file_config.enabled:
             logging._handlers['tracehandler'].formatter = self.file_config.get_formatter()
             # write tracing format header line
-            if self.file_config.write_format_header or self.file_config.threading:
+            if self.file_config.write_format_header or self.file_config.thread_names or self.file_config.process_names:
                 logging._handlers['tracehandler'].stream.write('# format: ' + self.file_config.format + '\n')
         return logging.getLogger(self.name)
 

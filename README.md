@@ -64,12 +64,18 @@ With the given code, the tracing to file looks something like:
 
 For more demo's, see the code snippets in the test suite.
 
+When your program is multithreaded or using multiprocessing, then the flags `tread_names` resp. `process_names` need to be enabled explicitly in the configuration, to prevent garbage/inconsistent tracing.
+
 ## Viewer
 
 A Trace-and-Timing viewer `ttviewer` is also included, which can visualize log files.
 Consider the fibonacci demo program `demo_fib.py`. 
 
 ![fibonacci tracing viewer demo](tests/demo_fib.png)
+
+Multiprocessing/multithreading demo:
+
+![multiprocessing multithreading tracing viewer demo](tests/demo_multiprocessing.png)
 
 # Testing, dependencies
 

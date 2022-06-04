@@ -82,6 +82,12 @@ Converting /tmp/ttviewer/extendedlogging.log.json \(.*B\) to /tmp/ttviewer/ttvie
         self._run_cmd(TTVIEWER, '-n', logfile)
         self._test_json_html_render('demo_events.png')
 
+    def test_multiprocessing_html_render(self):
+        '''Multiple threads/processes are rendered in their own lanes.'''
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_multiprocessing.log')
+        self._run_cmd(TTVIEWER, '-n', logfile)
+        self._test_json_html_render('demo_multiprocessing.png')
+
 
     # helper functions below
 
