@@ -23,6 +23,11 @@ import ttconvert.registry as registry
 #    ln -s /pathto/catapult_py3/tracing/bin/trace2html
 CATAPULT_TRACE_JSON2HTML = 'trace2html'
 
+# allow commenting lines
+IGNORE_LINE_CHAR = '#'
+
+# extendedlogging can write format spec as first line in the tracing file (option 'write_format_header')
+LOGFILE_FORMAT_SPEC = '# format: '
 
 
 def _find_utility(utility):
@@ -55,6 +60,14 @@ def parse_and_create_json(inputfilename, outputfilename, parser):
         lc = 0
         for line in f:
             lc += 1
+            # optionally configure parser
+            if line.startswith(LOGFILE_FORMAT_SPEC):
+                parser.configure(line.replace(LOGFILE_FORMAT_SPEC, '').strip())
+                continue
+            # ignore line?
+            if line.startswith(IGNORE_LINE_CHAR):
+                continue
+            # regular line parsing
             try:
                 r = parser(line)
             except Exception as e:

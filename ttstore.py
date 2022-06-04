@@ -6,6 +6,7 @@
 
 import datetime
 import json
+from collections import defaultdict
 
 
 # the HTML viewer requires magic microsecond scaling
@@ -40,7 +41,7 @@ class TracingJsonStore:
     Items must arrive in order, i.e. increasing timestamp and properly nested."""
     def __init__(self, outputfilename):
         self.items = []
-        self.stack = []
+        self.stack = defaultdict(lambda: [])
         self.last_timestamp = 0
         self.size = 0
         self.limit = STORE_LIMIT
@@ -70,12 +71,15 @@ class TracingJsonStore:
         self.write_item(item)
 
     def handle_start_item(self, item):
-        self.stack.append(item)
+        self.stack[item.tid].append(item)
 
     def handle_end_item(self, item):
-        start_item = self.stack.pop()
+        start_item = self.stack[item.tid].pop()
         if item.name != start_item.name:
-            raise StackError('item pop inconsistency: popped item is "{}:{}", expected name is "{}"'.format(item.args['where'], item.name, start_item.name))
+            thread_detail = ''
+            if item.tid:
+                thread_detail = ' at thread {}'.format(item.tid)
+            raise StackError('item pop inconsistency{}: popped item is "{}:{}", expected name is "{}"'.format(thread_detail, item.args['where'], item.name, start_item.name))
         # set a reference so the rendered label ('name') can be adapted
         start_item.end = item
         # write
@@ -100,11 +104,12 @@ class TracingJsonStore:
 
 
 class TracingItem:
-    def __init__(self, timestamp, itemtype, name, data, **kwargs):
+    def __init__(self, timestamp, tid, itemtype, name, data, **kwargs):
         '''A TracingItem represents a json line.'''
         self.timestamp = timestamp # float
         self.name = name
         self.pid = None
+        self.tid = tid
         self.type = itemtype
         self.data = data # string, raw (for detail pane)
         self.sdata = data # string, pretty (for io labeling)
@@ -117,7 +122,7 @@ class TracingItem:
         t = self.timestamp
         ts = int(MAGIC_MICROSECOND_TIMESTAMP_SCALING * self.timestamp)
         name = self.name
-        d = {'name': name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'args': self.args}
+        d = {'name': name, 'ts': ts, 'ph': self.type, 'pid': self.pid, 'tid': self.tid, 'args': self.args}
         if self.type == 'B':
             if INCLUDE_IO_IN_NAME:
                 end_item = self.end

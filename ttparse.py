@@ -8,29 +8,64 @@ __author__ = 'Jan Feitsma'
 # system imports
 import re
 import datetime
+from collections import defaultdict
 
 # own imports
 import ttstore
 
 
 
+# default format produced by extendedlogging:
+FORMAT_SPEC_SEPARATOR = ':'
+DEFAULT_FORMAT_SPEC = FORMAT_SPEC_SEPARATOR.join(['%(asctime)s', '%(levelname)s', '%(filename)s,%(lineno)d', '%(funcName)s', '%(message)s'])
+
 
 class ParseError(Exception):
+    pass
+class FormatError(Exception):
     pass
 
 
 class LoggingParser():
     def __init__(self):
-        # default format produced by extendedlogging:
-        # '%(asctime)s:%(levelname)s:%(filename)s,%(lineno)d:%(funcName)s:%(message)s'
-        # (TODO: what if process- and thread id are included? need a standardized format in extendedlogging to keep things somewhat simple here)
+        self.configure()
+
+    def configure(self, format_spec=DEFAULT_FORMAT_SPEC):
+        field_to_regex = defaultdict(lambda: '([^' + FORMAT_SPEC_SEPARATOR + ']+)')
+        field_to_regex['%(asctime)s'] = '([^A-Z]+)' # can have ':' separators
+        field_to_type = {}
+        field_to_type['%(asctime)s'] = 'timestamp'
+        field_to_type['%(threadName)s'] = 'tid'
+        field_to_type['%(levelname)s'] = 'eventlevel'
+        field_to_type['%(filename)s,%(lineno)d'] = 'where'
+        field_to_type['%(funcName)s'] = 'funcname'
+        field_to_type['%(message)s'] = 'data'
+        format_fields = format_spec.split(FORMAT_SPEC_SEPARATOR)
+        self.threaded_data = '%(threadName)s' in format_fields
+        class FieldIndexMap(object):
+            pass
+        self.field_to_idx = FieldIndexMap()
         # if levelname is TRACE, then message either starts with CALL or RETURN - these lines come in pairs
-        # otherwise it is an single-line event (INFO, DEBUG etc.)
+        # otherwise it is an single-line event (INFO, DEBUG etc.), parse via fallback
+        regex_trace_start_parts = []
+        regex_trace_end_parts = []
+        regex_fallback_parts = []
+        for idx, f in enumerate(format_fields):
+            if f not in field_to_type:
+                raise FormatError('unrecognized format field specification: "{}"'.format(f))
+            setattr(self.field_to_idx, field_to_type[f], idx)
+            regex_fallback_parts.append(field_to_regex[f])
+            if f == '%(message)s': # special trace start/end parsing
+                regex_trace_start_parts.append('CALL ' + field_to_regex[f])
+                regex_trace_end_parts.append('RETURN ' + field_to_regex[f])
+            else:
+                regex_trace_start_parts.append(field_to_regex[f])
+                regex_trace_end_parts.append(field_to_regex[f])
         self.config = {
-            'CALL': (re.compile("(.+):TRACE:(.*):(.*):CALL (.+)"), 'B', self._handle_trace),
-            'RETURN': (re.compile("(.+):TRACE:(.*):(.*):RETURN (.+)"), 'E', self._handle_trace)
+            'CALL': (re.compile(FORMAT_SPEC_SEPARATOR.join(regex_trace_start_parts)), 'B', self._handle_trace),
+            'RETURN': (re.compile(FORMAT_SPEC_SEPARATOR.join(regex_trace_end_parts)), 'E', self._handle_trace)
         }
-        self.config_fallback = (re.compile("([^A-Z]+):(.*):(.*):(.*):(.+)"), 'i', self._handle_event)
+        self.config_fallback = (re.compile(FORMAT_SPEC_SEPARATOR.join(regex_fallback_parts)), 'i', self._handle_event)
 
     def _select(self, line):
         '''Peek into line, figure out which regex to apply.'''
@@ -48,10 +83,16 @@ class LoggingParser():
         return handle(itemtype, match.groups())
 
     def _handle_trace(self, itemtype, regexmatch):
-        ts, where, funcname, data = regexmatch
+        tid = None
+        if self.threaded_data:
+            tid = regexmatch[self.field_to_idx.tid]
+        ts = regexmatch[self.field_to_idx.timestamp]
+        where = regexmatch[self.field_to_idx.where]
+        funcname = regexmatch[self.field_to_idx.funcname]
+        data = regexmatch[self.field_to_idx.data]
         timestamp = self.parse_timestamp(ts)
         kwargs = {'where': where}
-        result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
+        result = ttstore.TracingItem(timestamp, tid, itemtype, funcname, data, **kwargs)
         # do some extra work in case the io labeling option is set
         if itemtype == 'B' and ttstore.INCLUDE_IO_IN_NAME:
             s = data
@@ -64,11 +105,18 @@ class LoggingParser():
         return result
 
     def _handle_event(self, itemtype, regexmatch):
-        ts, eventlevel, where, funcname, data = regexmatch
+        tid = None
+        if self.threaded_data:
+            tid = regexmatch[self.field_to_idx.tid]
+        ts = regexmatch[self.field_to_idx.timestamp]
+        eventlevel = regexmatch[self.field_to_idx.eventlevel]
+        where = regexmatch[self.field_to_idx.where]
+        funcname = regexmatch[self.field_to_idx.funcname]
+        data = regexmatch[self.field_to_idx.data]
         timestamp = self.parse_timestamp(ts)
         # from documentation: The s property specifies the scope of the event. There are four scopes available global (g), process (p) and thread (t)
         kwargs = {'where': where, 'level': eventlevel, 'funcname': funcname, 'snapshot': None}
-        result = ttstore.TracingItem(timestamp, itemtype, 'EVENT', data, **kwargs)
+        result = ttstore.TracingItem(timestamp, tid, itemtype, 'EVENT', data, **kwargs)
         return result
 
     def parse_timestamp(self, ts):
