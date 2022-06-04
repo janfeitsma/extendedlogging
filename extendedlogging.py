@@ -15,6 +15,7 @@ To enable/configure: just call configure(). It accepts the following options:
     array_size_limit       # tracing array size limit, default {DEFAULT_ARRAY_SIZE_LIMIT}
     array_tail_truncation  # tracing array truncation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
     error_handling         # tracing error handler, default {DEFAULT_ERROR_HANDLING}
+    threading              # tracing option to also log thread id/name on each line, default {DEFAULT_THREADING}
     *_format               # logging format to use
     *_level                # logging level to use
 Where applicable (as marked with *_), the option prefix must be either 'file' or 'console'.
@@ -44,10 +45,14 @@ DEFAULT_NEWLINE_FOLDING = True
 DEFAULT_TIMESTAMP_RESOLUTION = 6
 DEFAULT_STRING_SIZE_LIMIT = 1000
 DEFAULT_ARRAY_SIZE_LIMIT = 10
-DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner
+DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner, not tail
 DEFAULT_ERROR_HANDLING = True # log ERROR in tracing upon exception
+DEFAULT_THREADING = False
+# alternatively we could try to auto-detect threading, but that seems too complicated
 
 
+
+# main configure function, see doc above
 def configure(**kwargs):
     c = MixedConfiguration(**kwargs)
     return c.apply()
@@ -86,10 +91,13 @@ class FileConfiguration():
         self.array_size_limit = DEFAULT_ARRAY_SIZE_LIMIT
         self.array_tail_truncation = DEFAULT_ARRAY_TAIL_TRUNCATION
         self.error_handling = DEFAULT_ERROR_HANDLING
+        self.threading = DEFAULT_THREADING
         # set overruled options, if any
         self.__dict__.update(kwargs)
 
     def apply(self):
+        if self.threading and not 'threadName' in self.format:
+            self.format = self.format.replace('%(levelname)s', '%(levelname)s:%(threadName)s')
         patch_autologging.disable()
         if self.error_handling:
             # install the error handler in autologging

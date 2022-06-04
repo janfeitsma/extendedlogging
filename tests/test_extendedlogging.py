@@ -1,7 +1,9 @@
 # system imports
 import os
 import shutil
+import time
 import unittest
+import threading
 
 # own imports
 import testcase
@@ -9,7 +11,7 @@ import extendedlogging
 
 # constants
 TMP_FOLDER = '/tmp/test_extendedlogging'
-LOG_FILE = os.path.join(TMP_FOLDER, 'logfile.txt')
+LOG_FILE = os.path.join(TMP_FOLDER, 'logfile.log')
 
 
 
@@ -231,6 +233,30 @@ TRACE:recurse: RETURN ERROR
             c.recurse(4) # will raise expected exception
         except ExpectedException as e:
             pass
+        # verify
+        self._compare_logfile(expected_content)
+
+    def test_multithreading(self):
+        '''When multiple threads are active, then trace events are logged with their name.'''
+        expected_content = """TRACE:Thread-1:run: CALL *('thread1', 0.2) **{}
+TRACE:Thread-2:run: CALL *('thread2', 0.2) **{}
+TRACE:Thread-1:run: RETURN None
+TRACE:Thread-2:run: RETURN None
+"""
+        # setup
+        self._configure(tracing=True, file_format='%(levelname)s:%(funcName)s: %(message)s', threading=True)
+        numthreads = 2
+        @extendedlogging.traced
+        def run(name, duration):
+            time.sleep(duration)
+        # run
+        threads = []
+        for it in range(numthreads):
+            threads.append(threading.Thread(target=run, args=('thread'+str(it+1), 0.2)))
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
         # verify
         self._compare_logfile(expected_content)
 
