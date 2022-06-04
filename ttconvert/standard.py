@@ -52,11 +52,19 @@ _convert_json2html.tool = _find_utility(CATAPULT_TRACE_JSON2HTML)
 def parse_and_create_json(inputfilename, outputfilename, parser):
     s = ttstore.TracingJsonStore(outputfilename)
     with open(inputfilename, 'r') as f:
+        lc = 0
         for line in f:
-            r = parser(line)
+            lc += 1
+            try:
+                r = parser(line)
+            except Exception as e:
+                raise type(e)('at line {}: {}'.format(lc, str(e))) from None
             # r is None, for a to-be-ignored line
             if r:
-                s.add(r)
+                try:
+                    s.add(r)
+                except Exception as e:
+                    raise type(e)('at line {}: {}'.format(lc, str(e))) from None
     return s.size
 
 

@@ -24,6 +24,14 @@ CUTOFF_IO_IN_NAME = 10
 
 
 
+class StackError(Exception): # could occur when not logging different thread id's
+    pass
+class ItemTypeError(Exception):
+    pass
+class OutOfMemoryError(Exception):
+    pass
+
+
 class TracingJsonStore:
     """This data store holds trace items and can write them as json for the catapult traceviewer.
     
@@ -56,7 +64,7 @@ class TracingJsonStore:
         elif item.type == 'i':
             self.handle_event_item(item)
         else:
-            raise Exception('unrecognized trace item type: {}'.format(item.type))
+            raise ItemTypeError('unrecognized trace item type: {}'.format(item.type))
 
     def handle_event_item(self, item):
         self.write_item(item)
@@ -67,7 +75,7 @@ class TracingJsonStore:
     def handle_end_item(self, item):
         start_item = self.stack.pop()
         if item.name != start_item.name:
-            raise Exception('item pop inconsistency: popped item is {}:{}, expected name is {}'.format(item.args['where'], item.name, start_item.name))
+            raise StackError('item pop inconsistency: popped item is "{}:{}", expected name is "{}"'.format(item.args['where'], item.name, start_item.name))
         # set a reference so the rendered label ('name') can be adapted
         start_item.end = item
         # write
@@ -87,7 +95,7 @@ class TracingJsonStore:
         # file end is handled at closure
         self.size += 1
         if self.size > self.limit:
-            raise Exception('store limit exceeded: {}'.format(self.limit))
+            raise OutOfMemoryError('store limit exceeded: {}'.format(self.limit))
 
 
 

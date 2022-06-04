@@ -15,6 +15,10 @@ import ttstore
 
 
 
+class ParseError(Exception):
+    pass
+
+
 class LoggingParser():
     def __init__(self):
         # default format produced by extendedlogging:
@@ -26,7 +30,7 @@ class LoggingParser():
             'CALL': (re.compile("(.+):TRACE:(.*):(.*):CALL (.+)"), 'B', self._handle_trace),
             'RETURN': (re.compile("(.+):TRACE:(.*):(.*):RETURN (.+)"), 'E', self._handle_trace)
         }
-        self.config_fallback = (re.compile("(.+):(.*):(.*):(.*):(.+)"), 'i', self._handle_event)
+        self.config_fallback = (re.compile("([^A-Z]+):(.*):(.*):(.*):(.+)"), 'i', self._handle_event)
 
     def _select(self, line):
         '''Peek into line, figure out which regex to apply.'''
@@ -34,14 +38,13 @@ class LoggingParser():
             if k in line:
                 return v
         return self.config_fallback
-        #raise Exception('_select failed on line: ' + line)
 
     def __call__(self, line):
         '''Parse given line and return TracingItem object.'''
         regex, itemtype, handle = self._select(line)
         match = regex.search(line)
         if not match:
-            raise Exception('parse error on line: ' + line)
+            raise ParseError('regex match failure: ' + str(regex))
         return handle(itemtype, match.groups())
 
     def _handle_trace(self, itemtype, regexmatch):
@@ -71,11 +74,14 @@ class LoggingParser():
     def parse_timestamp(self, ts):
         '''Parse timestamp string to seconds since epoch.'''
         # TODO: speedup using https://pypi.org/project/ciso8601/1.0.1/
-        w = ts.split()
-        ts = w[0] + ' ' + w[1]
-        format_str = "%Y-%m-%d %H:%M:%S,%f"
-        dt = datetime.datetime.strptime(ts, format_str)
-        timestamp = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+        try:
+            w = ts.split()
+            ts = w[0] + ' ' + w[1]
+            format_str = "%Y-%m-%d %H:%M:%S,%f"
+            dt = datetime.datetime.strptime(ts, format_str)
+            timestamp = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+        except Exception as e:
+            raise ParseError('failed to parse timestamp "{}" using format "{}"'.format(ts, format_str)) from None
         return timestamp
 
 
