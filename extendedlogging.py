@@ -16,6 +16,7 @@ To enable/configure: just call configure(). It accepts the following options:
     array_tail_truncation  # tracing array truncation option, to cut off arrays at the end instead of interior, default {DEFAULT_ARRAY_TAIL_TRUNCATION}
     error_handling         # tracing error handler, default {DEFAULT_ERROR_HANDLING}
     threading              # tracing option to also log thread id/name on each line, default {DEFAULT_THREADING}
+    write_format_header    # tracing option to write a header line with the format used, default {DEFAULT_WRITE_FORMAT_HEADER}
     *_format               # logging format to use
     *_level                # logging level to use
 Where applicable (as marked with *_), the option prefix must be either 'file' or 'console'.
@@ -49,6 +50,7 @@ DEFAULT_ARRAY_TAIL_TRUNCATION = False # default inner, not tail
 DEFAULT_ERROR_HANDLING = True # log ERROR in tracing upon exception
 DEFAULT_THREADING = False
 # alternatively we could try to auto-detect threading, but that seems too complicated
+DEFAULT_WRITE_FORMAT_HEADER = False
 
 
 
@@ -92,6 +94,7 @@ class FileConfiguration():
         self.array_tail_truncation = DEFAULT_ARRAY_TAIL_TRUNCATION
         self.error_handling = DEFAULT_ERROR_HANDLING
         self.threading = DEFAULT_THREADING
+        self.write_format_header = DEFAULT_WRITE_FORMAT_HEADER
         # set overruled options, if any
         self.__dict__.update(kwargs)
 
@@ -168,6 +171,9 @@ class MixedConfiguration():
         # bootstrap, connect the custom TraceFormatter
         if self.file_config.enabled:
             logging._handlers['tracehandler'].formatter = self.file_config.get_formatter()
+            # write tracing format header line
+            if self.file_config.write_format_header or self.file_config.threading:
+                logging._handlers['tracehandler'].stream.write('# format: ' + self.file_config.format + '\n')
         return logging.getLogger(self.name)
 
     def make_config_dict(self):

@@ -238,7 +238,8 @@ TRACE:recurse: RETURN ERROR
 
     def test_multithreading(self):
         '''When multiple threads are active, then trace events are logged with their name.'''
-        expected_content = """TRACE:Thread-1:run: CALL *('thread1', 0.2) **{}
+        expected_content = """# format: %(levelname)s:%(threadName)s:%(funcName)s: %(message)s
+TRACE:Thread-1:run: CALL *('thread1', 0.2) **{}
 TRACE:Thread-2:run: CALL *('thread2', 0.2) **{}
 TRACE:Thread-1:run: RETURN None
 TRACE:Thread-2:run: RETURN None
