@@ -21,7 +21,7 @@ READABLE_TIMESTAMP_FORMAT = "%Y-%m-%d,%H:%M:%S.%f"
 
 # module option to include i/o in name
 INCLUDE_IO_IN_NAME = False
-CUTOFF_IO_IN_NAME = 10
+CUTOFF_IO_IN_NAME = 100
 
 
 
@@ -133,7 +133,8 @@ class TracingItem:
                         return s[:CUTOFF_IO_IN_NAME] + '...'
                     return s
                 name += ' ' + cutoff(self.sdata) # inputs
-                name += '-> ' + cutoff(self.end.sdata) # to outputs
+                if self.end.sdata != 'None':
+                    name += '-> ' + cutoff(self.end.sdata) # to outputs
                 d['name'] = name
             d['args']['starttime'] = datetime.datetime.fromtimestamp(t).strftime(READABLE_TIMESTAMP_FORMAT)
             d['args']['inputs'] = self.data
