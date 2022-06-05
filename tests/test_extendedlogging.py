@@ -191,27 +191,27 @@ TRACE:f: RETURN None
 
     def test_trace_error_handling_disabled(self):
         '''Tracing can be incomplete when an exception occurs.'''
-        expected_content = """TRACE:recurse: CALL *(4,) **{}
+        expected_content = self._expected_error_handling(closed=False)
+        self._template_trace_error_handling(expected_content, error_handling=False)
+
+    def _expected_error_handling(self, closed=False):
+        result = """TRACE:recurse: CALL *(4,) **{}
 TRACE:recurse: CALL *(3,) **{}
 TRACE:recurse: CALL *(2,) **{}
 TRACE:recurse: CALL *(1,) **{}
 TRACE:recurse: RETURN None
 TRACE:recurse: RETURN None
 """
-        self._template_trace_error_handling(expected_content, error_handling=False)
+        if closed:
+            result += """ERROR:recurse: something went terribly wrong at n=3
+TRACE:recurse: RETURN ERROR
+TRACE:recurse: RETURN ERROR
+"""
+        return result
 
     def test_trace_error_handling_enabled(self):
         '''If so configured, exceptions shall be logged with ERROR events and tracing shall be closed.'''
-        expected_content = """TRACE:recurse: CALL *(4,) **{}
-TRACE:recurse: CALL *(3,) **{}
-TRACE:recurse: CALL *(2,) **{}
-TRACE:recurse: CALL *(1,) **{}
-TRACE:recurse: RETURN None
-TRACE:recurse: RETURN None
-ERROR:recurse: something went terribly wrong at n=3
-TRACE:recurse: RETURN ERROR
-TRACE:recurse: RETURN ERROR
-"""
+        expected_content = self._expected_error_handling(closed=True)
         self._template_trace_error_handling(expected_content, error_handling=True)
 
     def _template_trace_error_handling(self, expected_content, **kwargs):
@@ -260,6 +260,18 @@ TRACE:Thread-2:run: RETURN None
             thread.join()
         # verify
         self._compare_logfile(expected_content)
+
+    def test_cfg_consistency(self):
+        '''The configuration from main must also apply to imported modules using extendedlogging.'''
+        # setup
+        expected_content = self._expected_error_handling(closed=True)
+        # run
+        suppress_stderr = '2>/dev/null'
+        cmd = 'python {}/demo_cfg_consistency_main.py {}'.format(os.path.dirname(os.path.realpath(__file__)), suppress_stderr)
+        r = os.system(cmd)
+        # verify
+        self.assertTrue(r != 0) # expected exception, ignore
+        self._compare(extendedlogging.DEFAULT_LOG_FILE, expected_content)
 
     # helper functions below
 
