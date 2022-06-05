@@ -11,6 +11,7 @@ import autologging
 from inspect import isgenerator
 
 
+ERROR_HANDLING_ENABLED = True
 
 
 class original_FunctionTracingProxy(autologging._FunctionTracingProxy):
@@ -32,15 +33,18 @@ class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
 
         _handle(autologging.TRACE, "CALL *%r **%r", (args, keywords))
 
-        try:
+        if ERROR_HANDLING_ENABLED:
+            try:
+                value = function(*args, **keywords)
+            except Exception as e:
+                # tag the exception, to prevent it being logged at each level in the stack
+                if not hasattr(e, 'logged') or not e.logged:
+                    _handle(logging.ERROR, "%s", str(e))
+                e.logged = True
+                _handle(autologging.TRACE, "RETURN ERROR", None)
+                raise
+        else:
             value = function(*args, **keywords)
-        except Exception as e:
-            # tag the exception, to prevent it being logged at each level in the stack
-            if not hasattr(e, 'logged') or not e.logged:
-                _handle(logging.ERROR, "%s", str(e))
-            e.logged = True
-            _handle(autologging.TRACE, "RETURN ERROR", None)
-            raise
 
         _handle(autologging.TRACE, "RETURN %r", (value,))
 
@@ -50,9 +54,12 @@ class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
     __call__.__doc__ = original_FunctionTracingProxy.__call__.__doc__
 
 
-def enable():
-    autologging._FunctionTracingProxy = patched_FunctionTracingProxy
 
-def disable():
-    autologging._FunctionTracingProxy = original_FunctionTracingProxy
+# apply the patch always, to enable runtime (re)configuration
+autologging._FunctionTracingProxy = patched_FunctionTracingProxy
+
+def set_error_handling(b):
+    """Enable or disable the error handling feature."""
+    global ERROR_HANDLING_ENABLED
+    ERROR_HANDLING_ENABLED = b
 

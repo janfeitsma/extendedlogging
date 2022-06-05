@@ -40,6 +40,7 @@ from autologging import *
 # monkey patch to freeze the name, which enables consistent logging across multiple modules and over multiple reconfiguration runs
 autologging._generate_logger_name = lambda *args, **kwargs: MAIN_LOGGER_NAME
 
+
 # constants
 DEFAULT_LOG_FILE = '/tmp/extendedlogging.log'
 MAIN_LOGGER_NAME = ''
@@ -106,10 +107,7 @@ class FileConfiguration():
             self.format = self.format.replace('%(levelname)s', '%(levelname)s:%(threadName)s')
         if self.process_names and not 'processName' in self.format:
             self.format = self.format.replace('%(levelname)s', '%(levelname)s:%(processName)s')
-        patch_autologging.disable()
-        if self.error_handling:
-            # install the error handler in autologging
-            patch_autologging.enable()
+        patch_autologging.set_error_handling(self.error_handling)
 
     def get_formatter(self):
         # filter the arguments which are applicable

@@ -266,7 +266,7 @@ TRACE:Thread-2:run: RETURN None
         # setup
         expected_content = self._expected_error_handling(closed=True)
         # run
-        suppress_stderr = '2>/dev/null'
+        suppress_stderr = '2>/dev/null 1>&2'
         cmd = 'python {}/demo_cfg_consistency_main.py {}'.format(os.path.dirname(os.path.realpath(__file__)), suppress_stderr)
         r = os.system(cmd)
         # verify
