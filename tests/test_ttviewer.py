@@ -110,7 +110,7 @@ Converting /tmp/ttviewer/extendedlogging.log.json \(.*B\) to /tmp/ttviewer/ttvie
         browser.get('file://' + htmlfile)
         sleep(sleeptime) # nasty
         if click:
-            el = browser.find_element_by_xpath("//body")
+            el = browser.find_element(by=webdriver.common.by.By.XPATH, value="//body")
             action = webdriver.common.action_chains.ActionChains(browser)
             action.move_to_element_with_offset(el, *click)
             action.click()
