@@ -11,9 +11,9 @@ import shutil
 import subprocess
 
 # own imports
-import ttstore
-import ttparse
-import ttconvert.registry as registry
+import ttlib.ttstore as ttstore
+import ttlib.ttparse as ttparse
+import ttlib.ttconvert.registry as registry
 
 
 
@@ -71,7 +71,7 @@ def parse_and_create_json(inputfilename, outputfilename, parser):
             # regular line parsing
             try:
                 r = parser(line)
-            except Exception as e:
+            except ttparse.ParseError as e:
                 raise type(e)('at line {}: {}'.format(lc, str(e))) from None
             # r is None, for a to-be-ignored line
             if r:

@@ -9,7 +9,8 @@ import os
 import shutil
 import time
 from fnmatch import fnmatch
-import ttconvert.registry as registry
+
+import ttlib.ttconvert.registry as registry
 
 
 
