@@ -263,7 +263,7 @@ TRACE:Thread-2:run: RETURN None
         for thread in threads:
             thread.join()
         # verify
-        self._compare_logfile(expected_content)
+        self._compare_logfile(expected_content, sort=True) # sort needed to avoid race condition on threads start/finish
 
     def test_cfg_consistency(self):
         '''The configuration from main must also apply to imported modules using extendedlogging.'''

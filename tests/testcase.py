@@ -8,9 +8,19 @@ import unittest
 
 class TestCase(unittest.TestCase):
 
-    def _compare(self, filename, expected, regex=False):
+    def _compare(self, filename, expected, regex=False, sort=False):
         actual = open(filename, 'r').read()
-        compare_function = [self.assertEqual, self.assertMultiLineRegexMatch][regex]
+        compare_function = None
+        if sort:
+            if regex:
+                raise NotImplementedError('combining sort and regex option')
+            else:
+                compare_function = self.assertMultiLineSortedEqual
+        else:
+            if regex:
+                compare_function = self.assertMultiLineRegexMatch
+            else:
+                compare_function = self.assertMultiLineEqual
         compare_function(expected, actual)
 
     def _compare_stdout(self, expected):
@@ -48,4 +58,16 @@ class TestCase(unittest.TestCase):
             else:
                 asserter = self.assertRegex
             asserter(secondlines[it], firstlines[it], msg='at line %d' % it)
+
+    def assertMultiLineSortedEqual(self, first, second, msg=None):
+        """Assert that two multi-line strings are equal after sorting."""
+        self.assertIsInstance(first, str, 'First argument is not a string')
+        self.assertIsInstance(second, str, 'Second argument is not a string')
+        firstlines = sorted(self._splitlines(first))
+        secondlines = sorted(self._splitlines(second))
+        if len(firstlines) != len(secondlines):
+            standardMsg = 'Line count mismatch: %d != %d' % (len(firstlines), len(secondlines))
+            self.fail(self._formatMessage(msg, standardMsg))
+        for it in range(len(firstlines)):
+            self.assertEqual(firstlines[it], secondlines[it], msg='at (sorted) line %d' % it)
 
