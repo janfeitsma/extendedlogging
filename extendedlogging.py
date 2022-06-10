@@ -230,6 +230,9 @@ class TraceFormatter(logging.Formatter):
         self.array_tail_truncation = kwargs.get('array_tail_truncation', DEFAULT_ARRAY_TAIL_TRUNCATION)
         assert(self.timestamp_resolution >= 1)
         assert(self.timestamp_resolution <= 9)
+        # python2 backwards compatibility
+        if not hasattr(self, 'default_time_format'):
+            self.default_time_format = '%Y-%m-%d %H:%M:%S'
 
     def format(self, record):
         # step: compress arrays in self.args a-la numpy

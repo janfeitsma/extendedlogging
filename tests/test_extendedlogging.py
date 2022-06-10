@@ -1,4 +1,5 @@
 # system imports
+import sys
 import os
 import shutil
 import time
@@ -42,9 +43,10 @@ WARNING:test_logging_info_default:almost done
         # verify
         t = r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{' + str(check_digits) + '}' # timestamp with millisecond or microsecond resolution
         empty = '{}'
-        expected_content = f"""{t}:TRACE:test_extendedlogging.py,\d+:f:CALL \*\(\) \*\*{empty}
+        # python2 backwards compatibility: cannot use f-string, so do a poor-man explicit replace
+        expected_content = """{t}:TRACE:test_extendedlogging.py,\d+:f:CALL \*\(\) \*\*{empty}
 {t}:TRACE:test_extendedlogging.py,\d+:f:RETURN None
-"""
+""".replace('{t}', t).replace('{empty}', empty)
         self._compare_logfile(expected_content, regex=True)
         self._compare_stdout("")
 
@@ -187,6 +189,8 @@ TRACE:f: RETURN None
         expected_content = """TRACE:f: CALL *((['s1', ('a', 'b', 'c'), '...', 'e1'], 'keep', '...', ('s2', ['d', range(0, 100), 'f'], '...', 'e2')),) **{}
 TRACE:f: RETURN None
 """
+        if sys.version_info[0] < 3: # python2 backwards compatibility
+            expected_content = expected_content.replace("range(0, 100)", "[0, 1, '...', 99]")
         self._compare_logfile(expected_content)
 
     def test_trace_error_handling_disabled(self):

@@ -81,6 +81,7 @@ Multiprocessing/multithreading demo:
 
 * to install dependencies, run: 
   * `pip install -r REQUIREMENTS.pip`
+  * (this assumes `pip` is `pip3` - it should also work for python2 though)
 * to run all tests locally, run: `python tests/test_extendedlogging.py`
 * the `ttviewer` tooling requires `catapult` and a browser (default `google-chrome`, also `firefox` seems to work)
 

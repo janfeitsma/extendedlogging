@@ -17,6 +17,12 @@ class TestCase(unittest.TestCase):
         actual = sys.stdout.getvalue()
         self.assertEqual(actual, expected)
 
+    def _splitlines(self, s):
+        if sys.version_info[0] < 3: # python2 backwards compatibility
+            return s.splitlines()
+        # python3
+        return s.splitlines(keepends=False)
+
     def assertRegexValid(self, s, msg=None):
         """Assert that provided pattern string is a valid regular expression."""
         try:
@@ -30,14 +36,16 @@ class TestCase(unittest.TestCase):
         # this basically combines two methods from unittest: assertMultiLineEqual and assertRegex
         self.assertIsInstance(first, str, 'First argument is not a string')
         self.assertIsInstance(second, str, 'Second argument is not a string')
-        firstlines = first.splitlines(keepends=False)
-        secondlines = second.splitlines(keepends=False)
+        firstlines = self._splitlines(first)
+        secondlines = self._splitlines(second)
         if len(firstlines) != len(secondlines):
             standardMsg = 'Line count mismatch: %d != %d' % (len(firstlines), len(secondlines))
             self.fail(self._formatMessage(msg, standardMsg))
         for it in range(len(firstlines)):
             self.assertRegexValid(firstlines[it], msg='at line %d' % it)
-            self.assertRegex(secondlines[it], firstlines[it], msg='at line %d' % it)
-
-
+            if sys.version_info[0] < 3: # python2 backwards compatibility
+                asserter = self.assertRegexpMatches
+            else:
+                asserter = self.assertRegex
+            asserter(secondlines[it], firstlines[it], msg='at line %d' % it)
 
