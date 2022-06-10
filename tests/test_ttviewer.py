@@ -14,7 +14,7 @@ BROWSER = ttviewer.DEFAULT_BROWSER
 LOGFILE = extendedlogging.DEFAULT_LOG_FILE
 BASEDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 TTVIEWER = os.path.join(BASEDIR, 'ttviewer.py')
-
+PATH_TO_DEMOS = os.path.join(BASEDIR, 'demos')
 
 
 class TestTTViewer(testcase.TestCase):
@@ -39,7 +39,7 @@ class TestTTViewer(testcase.TestCase):
         if os.path.isfile(htmlfile):
             os.remove(htmlfile)
         # run demo to create tracing
-        demo_script = os.path.join(BASEDIR, 'demo.py')
+        demo_script = os.path.join(PATH_TO_DEMOS, 'demo.py')
         self._run_cmd('python', demo_script)
         # create html
         args = ['-n', LOGFILE]

@@ -62,7 +62,7 @@ With the given code, the tracing to file looks something like:
 2022-04-09 14:06:00,856161:WARNING:demo.py,21:root.<module>:done
 ```
 
-For more demo's, see the code snippets in the test suite.
+For more demo's, see the code snippets in the folders `demos` and `tests`.
 
 When your program is multithreaded or using multiprocessing, then the flags `tread_names` resp. `process_names` need to be enabled explicitly in the configuration, to prevent garbage/inconsistent tracing.
 

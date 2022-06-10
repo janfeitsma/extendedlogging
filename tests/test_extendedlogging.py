@@ -13,6 +13,7 @@ import extendedlogging
 # constants
 TMP_FOLDER = '/tmp/test_extendedlogging'
 LOG_FILE = os.path.join(TMP_FOLDER, 'logfile.log')
+PATH_TO_DEMOS = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'demos')
 
 
 
@@ -271,7 +272,7 @@ TRACE:Thread-2:run: RETURN None
         expected_content = self._expected_error_handling(closed=True)
         # run
         suppress_stderr = '2>/dev/null 1>&2'
-        cmd = 'python {}/demo_cfg_consistency_main.py {}'.format(os.path.dirname(os.path.realpath(__file__)), suppress_stderr)
+        cmd = 'python {}/demo_cfg_consistency_main.py {}'.format(PATH_TO_DEMOS, suppress_stderr)
         r = os.system(cmd)
         # verify
         self.assertTrue(r != 0) # expected exception, ignore
