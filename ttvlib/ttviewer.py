@@ -115,7 +115,7 @@ Launching browser ... # see tests/demo_catapult.png
     return parser.parse_args()
 
 
-def run_viewer(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False):
+def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False):
     # configure
     ttvlib.ttstore.INCLUDE_IO_IN_NAME = io
     s = TraceViewer(filenames, view=not noviewer, verbose=not quiet)
@@ -124,7 +124,4 @@ def run_viewer(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT
     # execute
     s.run(dryrun)
 
-
-if __name__ == '__main__':
-    run_viewer(**vars(parse_args()))
 

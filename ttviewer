@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+# command-line interface to ttviewer.py
+
+__author__ = 'Jan Feitsma'
+
+# own imports
+import ttvlib
+
+
+if __name__ == '__main__':
+    ttvlib.ttviewer.run(**vars(ttvlib.ttviewer.parse_args()))
+

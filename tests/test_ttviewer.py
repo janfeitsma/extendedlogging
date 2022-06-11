@@ -5,7 +5,7 @@ import unittest
 
 # own imports
 import testcase
-import ttviewer
+import ttvlib.ttviewer as ttviewer
 import extendedlogging
 
 # constants
@@ -13,7 +13,7 @@ TMPDIR = ttviewer.DEFAULT_TMPDIR
 BROWSER = ttviewer.DEFAULT_BROWSER
 LOGFILE = extendedlogging.DEFAULT_LOG_FILE
 BASEDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-TTVIEWER = os.path.join(BASEDIR, 'ttviewer.py')
+TTVIEWER = os.path.join(BASEDIR, 'ttviewer')
 PATH_TO_DEMOS = os.path.join(BASEDIR, 'demos')
 
 
