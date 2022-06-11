@@ -10,7 +10,7 @@ import shutil
 import time
 from fnmatch import fnmatch
 
-import ttlib.ttconvert.registry as registry
+import ttvlib.ttconvert.registry as registry
 
 
 

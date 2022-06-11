@@ -11,7 +11,7 @@ import datetime
 from collections import defaultdict
 
 # own imports
-import ttlib.ttstore as ttstore
+import ttvlib.ttstore as ttstore
 
 
 # default format produced by extendedlogging:

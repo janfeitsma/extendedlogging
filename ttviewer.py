@@ -10,7 +10,7 @@ All necessary conversions are done/attempted:
 If a trace .json file is given, then it is converted to .html using catapult trace2html.
 If one or more .log files are given, then they are parsed under the assumption the content is python (auto)logging, merged into .json.
 
-More converters to .json could be registered in ttlib/ttconvert.
+More converters to .json could be registered in ttvlib/ttconvert.
 '''
 
 __author__ = 'Jan Feitsma'
@@ -24,7 +24,7 @@ import argparse
 import subprocess
 
 # own imports
-import ttlib
+import ttvlib
 
 
 
@@ -48,7 +48,7 @@ class TraceViewer(object):
         self.verbose = verbose
         self.limit = DEFAULT_INPUT_LIMIT_MB
         self.dryrun = False
-        self.runner_class = ttlib.ttconvert.Runner
+        self.runner_class = ttvlib.ttconvert.Runner
 
     def run(self, dryrun=False):
         '''Run the viewer: generate html and launch a browser.'''
@@ -117,7 +117,7 @@ Launching browser ... # see tests/demo_catapult.png
 
 def run_viewer(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False):
     # configure
-    ttlib.ttstore.INCLUDE_IO_IN_NAME = io
+    ttvlib.ttstore.INCLUDE_IO_IN_NAME = io
     s = TraceViewer(filenames, view=not noviewer, verbose=not quiet)
     s.browser = browser
     s.limit = limit

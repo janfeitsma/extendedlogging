@@ -11,9 +11,9 @@ import shutil
 import subprocess
 
 # own imports
-import ttlib.ttstore as ttstore
-import ttlib.ttparse as ttparse
-import ttlib.ttconvert.registry as registry
+import ttvlib.ttstore as ttstore
+import ttvlib.ttparse as ttparse
+import ttvlib.ttconvert.registry as registry
 
 
 
