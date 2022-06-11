@@ -106,7 +106,8 @@ Converting /tmp/ttviewer/extendedlogging.log.json \(.*B\) to /tmp/ttviewer/ttvie
         options.headless = True
         options.add_argument('--width=1280')
         options.add_argument('--height=862') # TODO: why is resulting height only 777 pixels?!
-        browser = webdriver.Firefox(options=options)
+        service = webdriver.firefox.service.Service(log_path=os.path.devnull) # get rid of geckodriver.log
+        browser = webdriver.Firefox(options=options, service=service)
         browser.get('file://' + htmlfile)
         sleep(sleeptime) # nasty
         if click:
