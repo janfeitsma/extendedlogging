@@ -1,0 +1,31 @@
+# format: %(asctime)s:%(levelname)s:%(threadName)s:%(filename)s,%(lineno)d:%(funcName)s:%(message)s
+2022-06-27 11:43:41,399301:TRACE:MainThread:scrcpy.py,243:init_server_connection:CALL *() **{}
+2022-06-27 11:43:41,399432:INFO:MainThread:scrcpy.py,244:init_server_connection:Connecting to the VIDEO socket
+2022-06-27 11:43:42,236153:DEBUG:MainThread:scrcpy.py,277:init_server_connection:Found the dummy octet. This socket is OK.
+2022-06-27 11:43:42,236618:INFO:MainThread:scrcpy.py,286:init_server_connection:Connected to the VIDEO socket
+2022-06-27 11:43:42,236898:INFO:MainThread:scrcpy.py,290:init_server_connection:Connecting to the CONTROL socket
+2022-06-27 11:43:42,237327:INFO:MainThread:scrcpy.py,293:init_server_connection:Connected to the CONTROL socket
+2022-06-27 11:43:42,242482:TRACE:MainThread:scrcpy.py,243:init_server_connection:RETURN None
+2022-06-27 11:43:42,242867:TRACE:MainThread:scrcpy.py,315:get_video_socket:CALL *() **{}
+2022-06-27 11:43:42,243004:TRACE:MainThread:scrcpy.py,315:get_video_socket:RETURN <socket.socket fd=8, ...>
+2022-06-27 11:43:42,243347:TRACE:MainThread:scrcpy.py,328:__init__:CALL *(<socket.socket fd=8, ...}
+2022-06-27 11:43:42,247417:TRACE:Thread-1:scrcpy.py,383:_socket_loop:CALL *() **{}
+2022-06-27 11:43:42,247508:TRACE:MainThread:scrcpy.py,328:__init__:RETURN None
+2022-06-27 11:43:42,247609:TRACE:Thread-1:scrcpy.py,391:_socket_tick:CALL *() **{}
+2022-06-27 11:43:42,247766:TRACE:MainThread:scrcpy.py,318:get_control_socket:CALL *() **{}
+2022-06-27 11:43:42,247960:TRACE:MainThread:scrcpy.py,318:get_control_socket:RETURN <socket.socket fd=9, ...)>
+2022-06-27 11:43:42,248064:TRACE:MainThread:scrcpy.py,321:get_resolution:CALL *() **{}
+2022-06-27 11:43:42,248119:TRACE:MainThread:scrcpy.py,321:get_resolution:RETURN (1080, 528)
+2022-06-27 11:43:42,248178:TRACE:MainThread:scrcpy.py,496:__init__:CALL *(<socket.socket fd=9, ...>, (1080, 528)) **{}
+2022-06-27 11:43:42,248254:TRACE:MainThread:scrcpy.py,496:__init__:RETURN None
+2022-06-27 11:43:42,347636:TRACE:MainThread:scrcpy.py,346:get:CALL *() **{}
+2022-06-27 11:43:42,837245:TRACE:Thread-1:scrcpy.py,391:_socket_tick:RETURN True
+2022-06-27 11:43:42,837614:TRACE:Thread-1:scrcpy.py,391:_socket_tick:CALL *() **{}
+2022-06-27 11:43:42,839034:TRACE:Thread-1:scrcpy.py,391:_socket_tick:RETURN True
+2022-06-27 11:43:42,839397:TRACE:Thread-1:scrcpy.py,391:_socket_tick:CALL *() **{}
+2022-06-27 11:43:42,856017:TRACE:Thread-1:scrcpy.py,391:_socket_tick:RETURN True
+2022-06-27 11:43:42,856294:TRACE:Thread-1:scrcpy.py,391:_socket_tick:CALL *() **{}
+2022-06-27 11:43:42,856582:TRACE:MainThread:scrcpy.py,346:get:RETURN array([[[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]],\n\n       [[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]],\n\n       [[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]],\n\n       ...,\n\n       [[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]],\n\n       [[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]],\n\n       [[0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0],\n        ...,\n        [0, 0, 0],\n        [0, 0, 0],\n        [0, 0, 0]]], dtype=uint8)
+2022-06-27 11:43:44,409714:TRACE:Thread-1:scrcpy.py,391:_socket_tick:RETURN True
+2022-06-27 11:43:44,410192:TRACE:Thread-1:scrcpy.py,391:_socket_tick:CALL *() **{}
+2022-06-27 11:43:44,425288:TRACE:MainThread:scrcpy.py,346:get:CALL *() **{}

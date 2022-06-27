@@ -5,6 +5,7 @@
 # (retrieved via: https://github.com/catapult-project/catapult/blob/main/tracing/README.md)
 
 import datetime
+import copy
 import json
 from collections import defaultdict
 
@@ -22,6 +23,9 @@ READABLE_TIMESTAMP_FORMAT = "%Y-%m-%d,%H:%M:%S.%f"
 # module option to include i/o in name
 INCLUDE_IO_IN_NAME = False
 CUTOFF_IO_IN_NAME = 100
+
+# option to report dangling items
+AUTOCLOSE_VERBOSE = False
 
 
 
@@ -48,9 +52,32 @@ class TracingJsonStore:
         self.output = open(outputfilename, 'w')
 
     def __del__(self):
-        # TODO: autoclose to ensure json file integrity, prevent browser complaints
+        self.auto_close(verbose=AUTOCLOSE_VERBOSE)
         self.output.write(']\n')
         self.output.close()
+
+    def auto_close(self, verbose=True):
+        # when a program has exited abnormally, it can cause an incomplete log
+        # -> close dangling items to ensure json file integrity, prevent browser complaints / missing layers
+        count = 0
+        for (tkey, stackitems) in self.stack.items(): # foreach thread
+            if len(stackitems):
+                # as timestamp, choose the last one from current set of items
+                t = stackitems[-1].timestamp
+                # assume the items were started in sequence, so work back in reverse order
+                for item in list(reversed(stackitems)): # list copy
+                    if verbose:
+                        if count == 0:
+                            print('')
+                        print('WARNING: closing dangling event {}:{}'.format(item.args['where'], item.name))
+                    # manufacture closure item
+                    closure_item = copy.deepcopy(item)
+                    closure_item.type = 'E'
+                    closure_item.timestamp = t
+                    closure_item.data = closure_item.sdata = 'UNCLOSED'
+                    # write; will also consume the item on stack
+                    self.handle_end_item(closure_item)
+                    count += 1
 
     def add(self, item):
         # check timestamp order integrity

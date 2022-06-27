@@ -88,6 +88,12 @@ Converting /tmp/ttviewer/extendedlogging.log.json \(.*B\) to /tmp/ttviewer/ttvie
         self._run_cmd(TTVIEWER, '-n', logfile)
         self._test_json_html_render('demo_multiprocessing.png')
 
+    def test_autoclose_openloop_html_render(self):
+        '''Without the autoclose functionality, the loop layer would not be rendered because final tick errors out and the log is incomplete.'''
+        logfile = os.path.join(BASEDIR, 'tests', 'demo_openloop.log')
+        self._run_cmd(TTVIEWER, '-n', logfile)
+        self._test_json_html_render('demo_openloop.png')
+
 
     # helper functions below
 
