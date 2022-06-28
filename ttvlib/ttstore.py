@@ -50,6 +50,7 @@ class TracingJsonStore:
         self.size = 0
         self.limit = STORE_LIMIT
         self.output = open(outputfilename, 'w')
+        self.lasttimestamps = {}
 
     def __del__(self):
         self.auto_close(verbose=AUTOCLOSE_VERBOSE)
@@ -63,7 +64,7 @@ class TracingJsonStore:
         for (tkey, stackitems) in self.stack.items(): # foreach thread
             if len(stackitems):
                 # as timestamp, choose the last one from current set of items
-                t = stackitems[-1].timestamp
+                t = max(self.lasttimestamps[tkey], stackitems[-1].timestamp)
                 # assume the items were started in sequence, so work back in reverse order
                 for item in list(reversed(stackitems)): # list copy
                     if verbose:
@@ -78,6 +79,8 @@ class TracingJsonStore:
                     # write; will also consume the item on stack
                     self.handle_end_item(closure_item)
                     count += 1
+        for (tkey, stackitems) in self.stack.items():
+            assert(len(stackitems) == 0)
 
     def add(self, item):
         # check timestamp order integrity
@@ -99,11 +102,13 @@ class TracingJsonStore:
 
     def handle_start_item(self, item):
         key = (item.pid, item.tid)
+        self.lasttimestamps[key] = item.timestamp
         self.stack[key].append(item)
 
     def handle_end_item(self, item):
         key = (item.pid, item.tid)
         start_item = self.stack[key].pop()
+        self.lasttimestamps[key] = item.timestamp
         if item.name != start_item.name:
             thread_detail = ''
             if item.tid:
