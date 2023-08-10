@@ -21,7 +21,7 @@ class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
     def __call__(self, function, args, keywords):
         def _handle(level, msg, args):
             # try to make pretty function name (python version >= 3.3)
-            fname = function.__name
+            fname = function.__name__
             if hasattr(function, '__qualname__'):
                 fname = function.__qualname__
             # wrapper around logger.handle, reducing code duplication
