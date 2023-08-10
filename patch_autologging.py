@@ -20,6 +20,10 @@ class original_FunctionTracingProxy(autologging._FunctionTracingProxy):
 class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
     def __call__(self, function, args, keywords):
         def _handle(level, msg, args):
+            # try to make pretty function name (python version >= 3.3)
+            fname = function.__name
+            if hasattr(function, '__qualname__'):
+                fname = function.__qualname__
             # wrapper around logger.handle, reducing code duplication
             self._logger.handle(logging.LogRecord(
                 self._logger.name,   # name
@@ -29,7 +33,7 @@ class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
                 msg,                 # msg
                 args,                # args
                 None,                # exc_info
-                func=function.__name__))
+                func=fname))
 
         _handle(autologging.TRACE, "CALL *%r **%r", (args, keywords))
 
