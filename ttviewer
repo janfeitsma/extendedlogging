@@ -9,5 +9,5 @@ import ttvlib
 
 
 if __name__ == '__main__':
-    ttvlib.ttviewer.run(**vars(ttvlib.ttviewer.parse_args()))
+    ttvlib.ttviewer.run(**vars(ttvlib.ttviewer.make_parser().parse_args()))
 

@@ -24,6 +24,9 @@ class patched_FunctionTracingProxy(autologging._FunctionTracingProxy):
             fname = function.__name__
             if hasattr(function, '__qualname__'):
                 fname = function.__qualname__
+            # HACK, not sure why autologging gets instrumented?
+            if self._func_filename.endswith('autologging.py') and level == autologging.TRACE:
+                return
             # wrapper around logger.handle, reducing code duplication
             self._logger.handle(logging.LogRecord(
                 self._logger.name,   # name

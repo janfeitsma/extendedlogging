@@ -13,6 +13,16 @@ If one or more .log files are given, then they are parsed under the assumption t
 More converters to .json could be registered in ttvlib/ttconvert.
 '''
 
+EXAMPLE_TXT = '''Example: ttviewer.py tests/demo_fib.log --io
+Converting tests/demo_fib.log (5.1KB) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done (0.0s, 13.3KB, n=82)
+Converting /tmp/ttviewer/ttviewer.json (13.3KB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.5s, 4.0MB)
+Launching browser ... # see tests/demo_fib.png
+
+Example: ttviewer.py tests/demo_catapult.json
+Converting tests/demo_catapult.json (13.2MB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.9s, 8.3MB)
+Launching browser ... # see tests/demo_catapult.png
+'''
+
 __author__ = 'Jan Feitsma'
 
 
@@ -88,17 +98,7 @@ class TraceViewer(object):
 
 
 
-def parse_args():
-    descriptionTxt = __doc__
-    exampleTxt = '''Example: ttviewer.py tests/demo_fib.log --io
-Converting tests/demo_fib.log (5.1KB) to /tmp/ttviewer/ttviewer.json using parser: LoggingParser ... done (0.0s, 13.3KB, n=82)
-Converting /tmp/ttviewer/ttviewer.json (13.3KB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.5s, 4.0MB)
-Launching browser ... # see tests/demo_fib.png
-
-Example: ttviewer.py tests/demo_catapult.json
-Converting tests/demo_catapult.json (13.2MB) to /tmp/ttviewer/ttviewer.html using tool: trace2html ... done (1.9s, 8.3MB)
-Launching browser ... # see tests/demo_catapult.png
-'''
+def make_parser(descriptionTxt=__doc__, exampleTxt=EXAMPLE_TXT):
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         def __init__(self, prog):
             argparse.ArgumentDefaultsHelpFormatter.__init__(self, prog, max_help_position=36)
@@ -112,7 +112,7 @@ Launching browser ... # see tests/demo_catapult.png
     parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
     parser.add_argument('--io', action='store_true', help='render with input->output labels')
     parser.add_argument('filenames', help='input file(s)', nargs='+', metavar='filename')
-    return parser.parse_args()
+    return parser
 
 
 def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False):
