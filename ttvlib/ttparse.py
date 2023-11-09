@@ -128,10 +128,10 @@ class PythonLoggingParser():
     def parse_timestamp(self, ts):
         '''Parse timestamp string to seconds since epoch.'''
         # TODO: speedup using https://pypi.org/project/ciso8601/1.0.1/
+        format_str = TIME_FORMAT_STR
         try:
             w = ts.split()
             ts = w[0] + ' ' + w[1]
-            format_str = TIME_FORMAT_STR
             dt = datetime.datetime.strptime(ts, format_str)
             timestamp = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
         except Exception as e:
