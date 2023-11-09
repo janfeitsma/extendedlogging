@@ -35,12 +35,17 @@ def _find_utility(utility):
     w = shutil.which(utility)
     if not w is None:
         return w
+    # if not, then check environment variable
+    envname = utility.upper()
+    envvalue = os.getenv(envname)
+    if envvalue:
+        return envvalue
     # if not, then check current folder
     basedir = os.path.dirname(os.path.realpath(__file__))
     w = os.path.join(basedir, utility)
     if os.path.isfile(w):
         return w
-    raise FileNotFoundError('could not find utility ' + utility)
+    raise FileNotFoundError('could not find utility {}, either use symlink or environment variable {}'.format(utility, envname))
 
 
 def _convert_log(tracefilename, tmpjsonfilename):
