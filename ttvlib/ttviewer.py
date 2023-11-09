@@ -111,7 +111,6 @@ def make_parser(descriptionTxt=__doc__, exampleTxt=EXAMPLE_TXT):
     parser.add_argument('-L', '--limit', type=float, default=DEFAULT_INPUT_LIMIT_MB, help='input file size limit in MB')
     parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
     parser.add_argument('--io', action='store_true', help='render with input->output labels')
-    parser.add_argument('filenames', help='input file(s)', nargs='+', metavar='filename')
     return parser
 
 

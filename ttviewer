@@ -9,5 +9,7 @@ import ttvlib
 
 
 if __name__ == '__main__':
-    ttvlib.ttviewer.run(**vars(ttvlib.ttviewer.make_parser().parse_args()))
+    parser = ttvlib.ttviewer.make_parser()
+    parser.add_argument('filenames', help='input file(s)', nargs='+', metavar='filename')
+    ttvlib.ttviewer.run(**vars(parser.parse_args()))
 
