@@ -45,7 +45,7 @@ def _find_utility(utility):
 
 def _convert_log(tracefilename, tmpjsonfilename):
     return parse_and_create_json(tracefilename, tmpjsonfilename, _convert_log.parser)
-_convert_log.parser = ttparse.LoggingParser()
+_convert_log.parser = ttparse.PythonLoggingParser()
 
 
 def _convert_json2html(jsonfile, htmlfile):

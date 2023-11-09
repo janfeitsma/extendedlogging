@@ -17,6 +17,7 @@ import ttvlib.ttstore as ttstore
 # default format produced by extendedlogging:
 FORMAT_SPEC_SEPARATOR = ':'
 DEFAULT_FORMAT_SPEC = FORMAT_SPEC_SEPARATOR.join(['%(asctime)s', '%(levelname)s', '%(filename)s,%(lineno)d', '%(funcName)s', '%(message)s'])
+TIME_FORMAT_STR = '%Y-%m-%d %H:%M:%S,%f'
 
 
 class ParseError(Exception):
@@ -25,7 +26,7 @@ class FormatError(Exception):
     pass
 
 
-class LoggingParser():
+class PythonLoggingParser():
     def __init__(self):
         self.configure()
 
@@ -130,7 +131,7 @@ class LoggingParser():
         try:
             w = ts.split()
             ts = w[0] + ' ' + w[1]
-            format_str = "%Y-%m-%d %H:%M:%S,%f"
+            format_str = TIME_FORMAT_STR
             dt = datetime.datetime.strptime(ts, format_str)
             timestamp = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
         except Exception as e:
