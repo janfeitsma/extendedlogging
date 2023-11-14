@@ -8,6 +8,7 @@ __author__ = 'Jan Feitsma'
 import os
 import shutil
 import time
+import json
 from fnmatch import fnmatch
 
 import ttvlib.ttconvert.registry as registry
@@ -125,7 +126,16 @@ class Runner():
         if self.dryrun:
             return tgtfile
         # do the merge
-        raise NotImplementedError('json merge')
+        merged_json = []
+        for f in self.jsons:
+            jf = json.loads(open(f).read())
+            for j in jf:
+                if not j['tid']:
+                    j['tid'] = os.path.basename(f)
+                j['pid'] = None
+            merged_json += jf
+        open(tgtfile, 'w').write(json.dumps(merged_json))
+        return tgtfile
 
     # helpers / internals below         
 
