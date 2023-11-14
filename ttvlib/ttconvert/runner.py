@@ -23,6 +23,7 @@ class Runner():
         self.sizelimit_mb = sizelimit_mb
         self.messager = lambda x: None
         self.dryrun = False
+        self.pid_tid_handler = None
         self.registry = registry.get()
         self.jsons = []
 
@@ -129,10 +130,8 @@ class Runner():
         merged_json = []
         for f in self.jsons:
             jf = json.loads(open(f).read())
-            for j in jf:
-                if not j['tid']:
-                    j['tid'] = os.path.basename(f)
-                j['pid'] = None
+            if self.pid_tid_handler:
+                self.pid_tid_handler(f, jf)
             merged_json += jf
         open(tgtfile, 'w').write(json.dumps(merged_json))
         return tgtfile

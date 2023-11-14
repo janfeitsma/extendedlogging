@@ -60,7 +60,7 @@ class TraceViewer(object):
         self.dryrun = False
         self.runner_class = ttvlib.ttconvert.Runner
 
-    def run(self, dryrun=False):
+    def run(self, dryrun=False, pid_tid_handler=None):
         '''Run the viewer: generate html and launch a browser.'''
         self.dryrun = dryrun
         self._setup_tmpdir()
@@ -68,6 +68,7 @@ class TraceViewer(object):
         runner = self.runner_class(self.tmpdir, self.filenames, htmlfile, self.limit)
         runner.dryrun = dryrun
         runner.messager = self._message
+        runner.pid_tid_handler = pid_tid_handler
         runner.run()
         if self.view:
             self._launch_browser(htmlfile)
@@ -114,13 +115,13 @@ def make_parser(descriptionTxt=__doc__, exampleTxt=EXAMPLE_TXT):
     return parser
 
 
-def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False):
+def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False, pid_tid_handler=None):
     # configure
     ttvlib.ttstore.INCLUDE_IO_IN_NAME = io
     s = TraceViewer(filenames, view=not noviewer, verbose=not quiet)
     s.browser = browser
     s.limit = limit
     # execute
-    s.run(dryrun)
+    s.run(dryrun, pid_tid_handler)
 
 
