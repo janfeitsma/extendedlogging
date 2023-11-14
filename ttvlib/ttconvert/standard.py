@@ -53,6 +53,11 @@ def _convert_log(tracefilename, tmpjsonfilename):
 _convert_log.parser = ttparse.PythonLoggingParser()
 
 
+def _convert_spdlog(tracefilename, tmpjsonfilename):
+    return parse_and_create_json(tracefilename, tmpjsonfilename, _convert_spdlog.parser)
+_convert_spdlog.parser = ttparse.SpdlogParser()
+
+
 def _convert_json2html(jsonfile, htmlfile):
     cmd = '{} {} --quiet --output={}'.format(_convert_json2html.tool, jsonfile, htmlfile)
     subprocess.run(cmd, shell=True, check=True)
@@ -88,5 +93,6 @@ def parse_and_create_json(inputfilename, outputfilename, parser):
 
 
 registry.add_file(_convert_log, '*.log')
+registry.add_file(_convert_spdlog, '*.spdlog')
 registry.add_file(_convert_json2html, '*.json')
 

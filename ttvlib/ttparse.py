@@ -17,7 +17,8 @@ import ttvlib.ttstore as ttstore
 # default format produced by extendedlogging:
 FORMAT_SPEC_SEPARATOR = ':'
 DEFAULT_FORMAT_SPEC = FORMAT_SPEC_SEPARATOR.join(['%(asctime)s', '%(levelname)s', '%(filename)s,%(lineno)d', '%(funcName)s', '%(message)s'])
-TIME_FORMAT_STR = '%Y-%m-%d %H:%M:%S,%f'
+TIME_FORMAT_STR_PYTHON = '%Y-%m-%d %H:%M:%S,%f'
+TIME_FORMAT_STR_SPDLOG = '%Y-%m-%dT%H:%M:%S.%f'
 
 
 class ParseError(Exception):
@@ -128,7 +129,7 @@ class PythonLoggingParser():
     def parse_timestamp(self, ts):
         '''Parse timestamp string to seconds since epoch.'''
         # TODO: speedup using https://pypi.org/project/ciso8601/1.0.1/
-        format_str = TIME_FORMAT_STR
+        format_str = TIME_FORMAT_STR_PYTHON
         try:
             w = ts.split()
             ts = w[0] + ' ' + w[1]
@@ -139,3 +140,48 @@ class PythonLoggingParser():
         return timestamp
 
 
+class SpdlogParser():
+    def __init__(self):
+        pass
+
+    def __call__(self, line):
+        '''Parse given line and return TracingItem object.'''
+        # example line:
+        # [2023-11-09T20:52:05.180381] [34/34/FalconsVelocityControl] [info] [tick.cpp:24,tick] end {"tick":1,"error_value":0,"duration":0.000698,"output":{"velocity":{"x":0.0519729964,"y":0.0315867141,"rz":0.075}}}
+        words = line.split(' ')
+        if len(words) < 5:
+            # TODO error handling
+            return
+        etype = words[2].lstrip('[').rstrip(']')
+        if etype != 'trace':
+            # TODO support also events
+            return
+        ts = words[0].lstrip('[').rstrip(']')
+        timestamp = self.parse_timestamp(ts)
+        pid, tid, component = words[1].lstrip('[').rstrip(']').split('/')
+        where, funcname = words[3].lstrip('[').rstrip(']').split(',')
+        filename, linenumber = where.split(':')
+        data = ' '.join(words[4:])
+        if data.startswith('>'):
+            itemtype = 'B'
+        elif data.startswith('<'):
+            itemtype = 'E'
+        else:
+            raise ParseError('trace data should start with either > or < character')
+        kwargs = {'where': where}
+        result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
+        result.pid = pid
+        result.tid = tid
+        # TODO INCLUDE_IO_IN_NAME?
+        return result
+
+    def parse_timestamp(self, ts):
+        '''Parse timestamp string to seconds since epoch.'''
+        # TODO: speedup using https://pypi.org/project/ciso8601/1.0.1/
+        format_str = TIME_FORMAT_STR_SPDLOG
+        try:
+            dt = datetime.datetime.strptime(ts, format_str)
+            timestamp = (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+        except Exception as e:
+            raise ParseError('failed to parse timestamp "{}" using format "{}"'.format(ts, format_str)) from None
+        return timestamp
