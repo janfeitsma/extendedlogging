@@ -26,6 +26,7 @@ class Runner():
         self.pid_tid_handler = None
         self.registry = registry.get()
         self.jsons = []
+        self.do_merge = True
 
     def run(self):
         """Given one or more input files, or a single folder - produce a html file."""
@@ -36,8 +37,9 @@ class Runner():
             self.run_dir(self.inputfiles[0])
         else:
             self.run_files(self.inputfiles)
-        jsonfile = self.merge() # merge is skipped in case of 1 json file
-        self.convert(jsonfile, os.path.join(self.tmpdir, 'ttviewer.html'))
+        if self.do_merge:
+            jsonfile = self.merge() # merge is skipped in case of 1 json file
+            self.convert(jsonfile, os.path.join(self.tmpdir, 'ttviewer.html'))
 
     def run_dir(self, inputdir):
         """Run on a directory."""

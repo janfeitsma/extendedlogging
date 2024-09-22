@@ -59,6 +59,7 @@ class TraceViewer(object):
         self.limit = DEFAULT_INPUT_LIMIT_MB
         self.dryrun = False
         self.runner_class = ttvlib.ttconvert.Runner
+        self.do_merge = True
 
     def run(self, dryrun=False, pid_tid_handler=None):
         '''Run the viewer: generate html and launch a browser.'''
@@ -66,6 +67,7 @@ class TraceViewer(object):
         self._setup_tmpdir()
         htmlfile = os.path.join(self.tmpdir, 'ttviewer.html')
         runner = self.runner_class(self.tmpdir, self.filenames, htmlfile, self.limit)
+        runner.do_merge = self.do_merge
         runner.dryrun = dryrun
         runner.messager = self._message
         runner.pid_tid_handler = pid_tid_handler
@@ -99,26 +101,29 @@ class TraceViewer(object):
 
 
 
-def make_parser(descriptionTxt=__doc__, exampleTxt=EXAMPLE_TXT):
+def make_parser(descriptionTxt=__doc__, exampleTxt=EXAMPLE_TXT, view=True):
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         def __init__(self, prog):
             argparse.ArgumentDefaultsHelpFormatter.__init__(self, prog, max_help_position=36)
             argparse.RawDescriptionHelpFormatter.__init__(self, prog, max_help_position=36)
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
-    parser.add_argument('-n', '--noviewer', action='store_true', help='do not launch browser, stop after creating HTML')
+    if view:
+        parser.add_argument('-n', '--noviewer', action='store_true', help='do not launch browser, stop after creating HTML')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-d', '--dryrun', action='store_true', help='dryrun, just list the conversions without executing them')
     group.add_argument('-q', '--quiet', action='store_true', help='suppress progress messages')
     parser.add_argument('-L', '--limit', type=float, default=DEFAULT_INPUT_LIMIT_MB, help='input file size limit in MB')
-    parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
+    if view:
+        parser.add_argument('-b', '--browser', default=DEFAULT_BROWSER, type=str, help='which browser to use')
     parser.add_argument('--io', action='store_true', help='render with input->output labels')
     return parser
 
 
-def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False, pid_tid_handler=None):
+def run(filenames, browser=DEFAULT_BROWSER, io=False, limit=DEFAULT_INPUT_LIMIT_MB, noviewer=False, quiet=False, dryrun=False, pid_tid_handler=None, merge=True):
     # configure
     ttvlib.ttstore.INCLUDE_IO_IN_NAME = io
     s = TraceViewer(filenames, view=not noviewer, verbose=not quiet)
+    s.do_merge = merge
     s.browser = browser
     s.limit = limit
     # execute
