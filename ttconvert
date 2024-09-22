@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+"""
+Helper script. Convert to json files. Like ttviewer, but without html rendering.
+"""
+
+__author__ = 'Jan Feitsma'
+
+# own imports
+import ttvlib
+
+
+
+def make_parser():
+    parser = ttvlib.ttviewer.make_parser(descriptionTxt=__doc__, exampleTxt='', view=False)
+    parser.add_argument('filenames', help='input file(s)', nargs='+', metavar='filename')
+    return parser
+
+
+def main():
+    parser = make_parser()
+    kwargs = vars(parser.parse_args())
+    kwargs['noviewer'] = True
+    kwargs['merge'] = False
+    ttvlib.ttviewer.run(**kwargs)
+
+
+if __name__ == '__main__':
+    main()
+
