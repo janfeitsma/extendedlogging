@@ -168,7 +168,7 @@ class SpdlogParser():
             itemtype = 'E'
         else:
             raise ParseError('trace data should start with either > or < character')
-        kwargs = {'where': where}
+        kwargs = {'where': component + '/' + where}
         result = ttstore.TracingItem(timestamp, itemtype, funcname, data, **kwargs)
         result.pid = pid
         result.tid = tid
